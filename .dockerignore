@@ -1,0 +1,41 @@
+# Node modules
+node_modules
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+# Dependency directories
+jspm_packages/
+bower_components/
+# Build directories
+build/
+dist/
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+# Optional npm cache directory
+.npm
+# Optional eslint cache
+.eslintcache
+# Optional stylelint cache
+.stylelintcache
+# Parcel cache
+.cache
+.parcel-cache
+# Output of 'npm pack'
+*.tgz
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+# VSCode settings
+.vscode/
+.vscode-test
+# OS-specific files
+.DS_Store

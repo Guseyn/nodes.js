@@ -28,20 +28,12 @@ jobs:
     - run: npm run lint
 
   release:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'v1.') && contains(github.event.head_commit.message, '.')
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v3
-      - name: Check commit message format
-        run: |
-          COMMIT_MESSAGE=$(printf '%s' "${{ github.event.head_commit.message }}")
-          if echo "$COMMIT_MESSAGE" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "COMMIT_MESSAGE_FORMAT=valid" >> $GITHUB_ENV
-          else
-            echo "COMMIT_MESSAGE_FORMAT=invalid" >> $GITHUB_ENV
       - name: Create GitHub Release
-        if: env.COMMIT_MESSAGE_FORMAT == 'valid'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

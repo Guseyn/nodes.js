@@ -1,6 +1,6 @@
 {
   "name": "nodes",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Procedural Web Framework",
   "scripts": {
     "lint": "npx eslint",

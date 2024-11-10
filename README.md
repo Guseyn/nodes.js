@@ -9,23 +9,6 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 This is my wish list:
 
 1. I want to build my web application on a framework with zero dependencies.
-<<<<<<< Updated upstream
-1. I want to utilize native Node.js APIs without any additional layers of abstractions.
-1. I want to hack my framework when I need to, e.i. I want to have quick access to my framework's folder and make quick changes.
-1. I want to have zero downtime when I update my appliction's logic just by sending a signal.
-1. I want to use [Cluster](https://nodejs.org/api/cluster.html) in Node.js. It will allow me to scale my application with very little price. I also don't want to anything else for orchestration and other fancy things that Node.js provdes itlself.
-1. I want to have HTTP/2 as a default.
-1. I want to handle 500 User error properly.
-1. I want to configure my application out of box in my primary and worker processes.
-1. I want to have very simple secrets reader.
-1. I want to be able to log into an output log file.
-1. I want to have composable API provided by my framework and not use middlewares that reduces the code clarity. I want to be able to copy/paste logic to achieve clarity.
-1. I want to have access to `params` and `queries` in each request URL.
-1. I want to have control when I read `body` of my requests.
-1. I want to have quick access to my external dependecies like db clients and other integrations without attaching them to `request` object. I want to have dependecy injection without any huge frameworks.
-1. I want to easily configure my `index.html`, `not-found.html` files.
-1. **I want to focus on building my products quicky and make money.**
-=======
 2. I want to utilize native Node.js APIs without any additional layers of abstraction.
 3. I want the flexibility to modify my framework as needed, meaning I should have quick access to its folder for making rapid adjustments.
 4. I want to have zero downtime when I update my application's logic just by sending a signal.
@@ -41,7 +24,6 @@ This is my wish list:
 14. I want to have quick access to my external dependencies, like database clients and other integrations, without attaching them to the `request` object. I want to have dependency injection without any huge frameworks.
 15. I want to easily configure my `index.html` and `not-found.html` files.
 16. I want to focus on building my products quickly and making money.
->>>>>>> Stashed changes
 
 ## How it works
 

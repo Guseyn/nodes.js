@@ -1,7 +1,10 @@
-# Release 1.0.13
+# Release 1.0.14
 
-f2880f2 update version in package.json to 1.0.13 (guseyn, Sun Nov 10 04:46:47 2024 +0400)
-1792fba update (guseyn, Sun Nov 10 04:46:45 2024 +0400)
+5832b15 update version in package.json to 1.0.14 (guseyn, Sun Nov 10 05:19:53 2024 +0400)
+5622599 update readme (guseyn, Sun Nov 10 05:19:51 2024 +0400)
+0a5e86a 1.0.13 (guseyn, Sun Nov 10 04:46:47 2024 +0400)
+e0b462b update version in package.json to 1.0.13 (guseyn, Sun Nov 10 04:46:47 2024 +0400)
+a530eb4 update (guseyn, Sun Nov 10 04:46:45 2024 +0400)
 dfd662c 1.0.12 (guseyn, Sun Nov 10 04:39:44 2024 +0400)
 e0f4470 update version in package.json to 1.0.12 (guseyn, Sun Nov 10 04:39:44 2024 +0400)
 01755a8 update readme (guseyn, Sun Nov 10 04:34:14 2024 +0400)

@@ -73,7 +73,7 @@ Config at least must contain following values:
 
 ```json
 {
-  "host": "1.0.13.0",
+  "host": "1.0.14.0",
   "port": 8004,
   "key": "./ssl/key.pem",
   "cert": "./ssl/cert.pem"
@@ -120,8 +120,8 @@ cluster('example/primary.js', 'example/worker.js')({ config, logFile })
 Logs in the file have following format:
 
 ```
-2024-11-09T15:21:03.885Z - worker (pid:35119) - HTTP/2 server running at https://1.0.13.0:8004
-2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.13.0:8004
+2024-11-09T15:21:03.885Z - worker (pid:35119) - HTTP/2 server running at https://1.0.14.0:8004
+2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.14.0:8004
 ```
 
 Use `global.log()` function to write logs to file. By default, this function writes to console.
@@ -294,7 +294,7 @@ const handler = ({
 
 const corsOptions = {
   cacheControl: 'cache, public, max-age=432000',
-  allowedOrigins: [ '1.0.13.220', '1.0.13.1:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '1.0.14.220', '1.0.14.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -416,7 +416,7 @@ function staticMapper(requestUrl) {
 const options = {
   useGzip: true,
   cacheControl: 'cache, public, max-age=432000',
-  allowedOrigins: [ '1.0.13.220', '1.0.13.1:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '1.0.14.220', '1.0.14.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -502,7 +502,7 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 // local.env
 
 {
-  "host": "1.0.13.0",
+  "host": "1.0.14.0",
   "port": 8004,
   "key": "./example/ssl/key.pem",
   "cert": "./example/ssl/cert.pem",

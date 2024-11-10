@@ -1,21 +1,17 @@
 {
   "name": "nodes",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Procedural Web Framework",
   "scripts": {
     "lint": "npx eslint",
     "example:start": "node example/main.js",
     "example:restart": "node example/restart.js",
-
     "example:local:start": "ENV=local npm run example:start",
     "example:prod:start": "ENV=prod npm run example:start",
-
     "example:local:restart": "ENV=local npm run example:restart",
     "example:prod:restart": "ENV=prod npm run example:restart",
-
     "example:docker:local:start": "ENV=local docker-compose up --build --force-recreate",
     "example:docker:prod:start": "ENV=prod docker-compose up --build --force-recreate",
-
     "example:docker:local:restart": "docker exec -it nodes-app npm run example:local:restart",
     "example:docker:prod:restart": "docker exec -it nodes-app npm run example:prod:restart"
   },

@@ -10,7 +10,7 @@ This is my wish list:
 
 1. I want to build my web application on a framework with zero dependencies.
 1. I want to utilize native Node.js APIs without any additional layers of abstractions.
-1. I want to hack my framework when I need to, e.i. I want to have quick access to my framework's folder and make quick changes.
+1. I want the flexibility to modify my framework as needed, meaning I should have quick access to its folder for making rapid adjustments.
 1. I want to have zero downtime when I update my appliction's logic just by sending a signal.
 1. I want to use [Cluster](https://nodejs.org/api/cluster.html) in Node.js. It will allow me to scale my application with very little price. I also don't want to anything else for orchestration and other fancy things that Node.js provdes itlself.
 1. I want to have HTTP/2 as a default.

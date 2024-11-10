@@ -1,5 +1,3 @@
-console.log('this is executed in worker process', process.pid)
-
 const fs = require('fs')
 
 const server = require('./../nodes/server')

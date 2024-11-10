@@ -28,8 +28,7 @@ jobs:
     - run: npm run lint
 
   release:
-    # Trigger release only after a successful run of the workflow on a merged pull request
-    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
     steps:

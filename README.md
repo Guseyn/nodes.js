@@ -184,6 +184,7 @@ const api = [
         'content-type': 'text/plain'
       })
       stream.end('This index page.')
+      return
     }
     stream.respond({
       status: 401,

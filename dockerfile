@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -10,4 +10,4 @@ COPY example/ssl/cert.pem example/ssl/key.pem example/ssl/
 COPY . .
 ENV ENV=prod
 EXPOSE 8004
-CMD ["npm", "run", "example"]
+CMD ["npm", "run", "example:start"]

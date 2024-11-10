@@ -496,10 +496,10 @@ It's very simple and you do it rarely, because `restart.js` does not delete your
 
 ## Example
 
-You can run example:
+You can run example locally:
 
 ```bash
-npm run example
+npm run example:start
 ```
 
 You can also restart example:
@@ -507,6 +507,34 @@ You can also restart example:
 ```bash
 npm run example:restart
 ```
+
+## Docker
+
+You can start example application in docker container in different evnironments:
+
+```bash
+example:docker:local:start
+```
+
+or
+
+```bash
+example:docker:prod:start
+```
+
+Folders `/example`, `/nodes`,  are bound to docker container. It means that you can change the code in those folders and then restart commands to update the application in the container:
+
+```bash
+example:docker:local:restart
+```
+
+or
+
+```bash
+example:docker:prod:restart
+```
+
+If you use `output.log` file, you can also see all logs of the application, since it's also bound to the container.
 
 ## cloc (nodes folder)
 
@@ -522,7 +550,7 @@ SUM:                            26             78              1           1046
 
 ## Next Goals
 
-- [ ] Add Docker Support
+- [x] Add Docker Support
 - [ ] Add Let's Encrypt Support out of box
 - [ ] Add admin panel
   - [ ] Add log reader

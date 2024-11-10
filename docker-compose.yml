@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodes-app
+    volumes:
+      - ./output.log:/app/output.log
+      - ./nodes:/app/nodes
+      - ./example:/app/example
+    ports:
+      - "8004:8004"
+    networks:
+      - app-network
+    # Override CMD in Dockerfile with my ENV variable
+    command: sh -c "ENV=$ENV npm run example:start"
+
+networks:
+  app-network:
+    driver: bridge

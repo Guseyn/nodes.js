@@ -52,11 +52,11 @@ module.exports = function server(app) {
     server.listen(global.config.port, global.config.host, () => {
       global.log(`HTTP/2 server running at https://${global.config.host}:${global.config.port}`)
     })
-    if (global.config.port === 443) {
+    // if (global.config.port === 443) {
       proxyServer(
         global.config.host,
         global.config.port
       )()
-    }
+    // }
   }
 }

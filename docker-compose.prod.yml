@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodes-app
+    volumes:
+      - ./output.log:/app/output.log
+      - ./nodes:/app/nodes
+      - ./example:/app/example
+    ports:
+      - "8004:8004"
+      - "8005:8005"
+    networks:
+      - app-network
+    # Override CMD in Dockerfile with my ENV variable
+    command: sh -c "ENV=$ENV npm run example:start"
+
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - ./certificates:/etc/letsencrypt  # Volume for certificate storage
+  #     - ./proxy-config:/var/www/certbot  # Volume for ACME challenge handling
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  #   networks:
+  #     - app-network
+  #   restart: always
+
+networks:
+  app-network:
+    driver: bridge

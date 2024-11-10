@@ -1,6 +1,8 @@
 const http = require('http')
-const https = require('https')
 const url = require('url')
+const fs = require('fs')
+
+const acmeChallengeUrlPattern = /^\/\.well-known\/acme-challenge/
 
 module.exports = function proxyServer(
   targetServerHost, targetServerPort
@@ -10,6 +12,22 @@ module.exports = function proxyServer(
     if (req.url === '/') {
       reqUrl = ''
     }
+    // Acme Challenge for HTTPS setup 
+    if (acmeChallengeUrlPattern.test(req.url)) {
+      const url = request.url
+      res.writeHead(200, {
+        'content-type': 'text/plain'
+      })
+      try {
+        const parsedUrl = url.parse(req.url, true)
+        const token = fs.readFilySync(parsedUrl.pathname)
+        res.end(token)
+      } catch (err) {
+        res.end()
+      }
+      return
+    }
+    // Proxy Logic
     res.writeHead(301, {
       'Location': `https://${targetServerHost}:${targetServerPort}${reqUrl}`
     })
@@ -19,7 +37,7 @@ module.exports = function proxyServer(
     }
   })
   return function serverListener() {
-    server.listen(80, targetServerHost, () => {
+    server.listen(8005, targetServerHost, () => {
       console.log(`HTTP proxy server running at http://0.0.0.0:80`)
     })
   }

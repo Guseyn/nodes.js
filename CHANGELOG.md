@@ -1,7 +1,23 @@
-# Release 1.0.15
+# Release 1.0.16
 
-1aa79af update version in package.json to 1.0.15 (guseyn, Sun Nov 10 05:22:00 2024 +0400)
-2a5157b update readme (guseyn, Sun Nov 10 05:21:59 2024 +0400)
+a397f28 update version in package.json to 1.0.16 (guseyn, Sun Nov 10 21:23:02 2024 +0400)
+ce8ecd4 improve caching via etag (guseyn, Sun Nov 10 21:22:59 2024 +0400)
+7eb9fbc update (guseyn, Sun Nov 10 19:32:33 2024 +0400)
+49de243 update (guseyn, Sun Nov 10 19:31:08 2024 +0400)
+11b70d1 updated prod.json (Rupam golui, Sat Nov 9 16:37:27 2024 +0530)
+e346371 created .dockerignore (Rupam golui, Sat Nov 9 16:37:07 2024 +0530)
+449d026 Created dockerfile (Rupam golui, Sat Nov 9 16:36:42 2024 +0530)
+0f35077 fix flow (guseyn, Sun Nov 10 16:07:18 2024 +0400)
+40997f3 fix flow (guseyn, Sun Nov 10 16:01:03 2024 +0400)
+386e314 fix flow (guseyn, Sun Nov 10 15:58:55 2024 +0400)
+6bce129 fix 
+ (guseyn, Sun Nov 10 15:56:53 2024 +0400)
+181b048 try one more time (guseyn, Sun Nov 10 15:53:53 2024 +0400)
+c2d05e8 update flow (guseyn, Sun Nov 10 15:45:56 2024 +0400)
+e69ef4f update flow (guseyn, Sun Nov 10 15:20:59 2024 +0400)
+98ae86d 1.0.15 (guseyn, Sun Nov 10 05:22:00 2024 +0400)
+cf91e8c update version in package.json to 1.0.15 (guseyn, Sun Nov 10 05:22:00 2024 +0400)
+9f4f172 update readme (guseyn, Sun Nov 10 05:21:59 2024 +0400)
 17ee03a 1.0.14 (guseyn, Sun Nov 10 05:19:53 2024 +0400)
 a78895d update version in package.json to 1.0.14 (guseyn, Sun Nov 10 05:19:53 2024 +0400)
 3ee1ec8 update readme (guseyn, Sun Nov 10 05:19:51 2024 +0400)

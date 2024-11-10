@@ -107,7 +107,8 @@ module.exports = async function handleRequests(app, stream, headers) {
                   }
                 } else {
                   const useGzip = matchedSrc.useGzip || false
-                  const cacheControl = matchedSrc.cacheControl || false
+                  const useCache = matchedSrc.useCache || false
+                  const cacheControl = matchedSrc.cacheControl || undefined
                   const lastModified = stats.mtime.toUTCString()
                   const allowedOrigins = matchedSrc.allowedOrigins || {}
                   const allowedMethods = matchedSrc.allowedMethods || []
@@ -123,6 +124,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     stats,
                     404,
                     useGzip,
+                    useCache,
                     cacheControl,
                     lastModified,
                     allowedOrigins,
@@ -154,6 +156,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                   }
                 } else {
                   const useGzip = matchedSrc.useGzip || false
+                  const useCache = matchedSrc.useCache || false
                   const cacheControl = matchedSrc.cacheControl || false
                   const lastModified = stats.mtime.toUTCString()
                   const allowedOrigins = matchedSrc.allowedOrigins || {}
@@ -170,6 +173,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     stats,
                     403,
                     useGzip,
+                    useCache,
                     cacheControl,
                     lastModified,
                     allowedOrigins,
@@ -183,31 +187,41 @@ module.exports = async function handleRequests(app, stream, headers) {
             }
           }
         } else {
-          const useGzip = matchedSrc.useGzip || false
-          const cacheControl = matchedSrc.cacheControl || false
+          const useCache = matchedSrc.useCache || false
           const lastModified = stats.mtime.toUTCString()
-          const allowedOrigins = matchedSrc.allowedOrigins || {}
-          const allowedMethods = matchedSrc.allowedMethods || []
-          const allowedHeaders = matchedSrc.allowedHeaders || []
-          const allowedCredentials = matchedSrc.allowedCredentials || false
-          const maxAge = matchedSrc.maxAge || undefined
-          streamFile(
-            resolvedFilePath,
-            stream,
-            requestMethod,
-            requestOrigin,
-            requestHost,
-            stats,
-            200,
-            useGzip,
-            cacheControl,
-            lastModified,
-            allowedOrigins,
-            allowedMethods,
-            allowedHeaders,
-            allowedCredentials,
-            maxAge
-          )
+          if (useCache && headers['if-none-match'] && headers['if-none-match'] === lastModified) {
+            stream.respond({
+              'content-type': 'text/plain',
+              ':status': 304
+            })
+            stream.end()
+          } else {
+            const useGzip = matchedSrc.useGzip || false
+            const cacheControl = matchedSrc.cacheControl || undefined
+            const allowedOrigins = matchedSrc.allowedOrigins || {}
+            const allowedMethods = matchedSrc.allowedMethods || []
+            const allowedHeaders = matchedSrc.allowedHeaders || []
+            const allowedCredentials = matchedSrc.allowedCredentials || false
+            const maxAge = matchedSrc.maxAge || undefined
+            streamFile(
+              resolvedFilePath,
+              stream,
+              requestMethod,
+              requestOrigin,
+              requestHost,
+              stats,
+              200,
+              useGzip,
+              useCache,
+              cacheControl,
+              lastModified,
+              allowedOrigins,
+              allowedMethods,
+              allowedHeaders,
+              allowedCredentials,
+              maxAge
+            )
+          }
         }
       })
     } else {

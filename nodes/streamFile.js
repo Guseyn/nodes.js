@@ -13,6 +13,7 @@ module.exports = function streamFile(
   stats,
   status,
   useGzip,
+  useCache,
   cacheControl,
   lastModified,
   allowedOrigins,
@@ -31,9 +32,11 @@ module.exports = function streamFile(
   if (useGzip) {
     responseHeaders['content-encoding'] = 'gzip'
   }
+  if (useCache) {
+    responseHeaders['etag'] = lastModified
+  }
   if (cacheControl) {
     responseHeaders['cache-control'] = cacheControl
-    responseHeaders['last-modified'] = lastModified
   }
   if (allowedOrigins) {
     responseHeaders['access-control-allow-origin'] = allowedOrigin(

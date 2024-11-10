@@ -29,8 +29,12 @@ server(
       endpoint('/post/:id/comment/new', 'POST', addComment),
     ],
     static: [
-      src(/^\/(html|css|js|images)/, mapper, {
+      src(/^\/(html)/, mapper, {
         useGzip: true
+      }),
+      src(/^\/(css|js|images)/, mapper, {
+        useGzip: true,
+        useCache: true
       })
     ],
     deps: { blogStorage }

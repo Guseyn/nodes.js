@@ -378,8 +378,33 @@ function staticMapper(requestUrl) {
 const static = [
   src(/^\/(css|js|image)/, staticMapper, {
     useGzip: true,
-    cacheControl: 'cache, public, max-age=432000'
+    useCache: true
   })
+]
+
+server(
+  app({ static })
+)()
+```
+
+Caching works via `ETag` header. It means that if you modify your files in your file system, the server will detect that and invalidate the cache, otherwise it will send to the browser: `304 Not Modified`.
+
+You can add `cacheControl` as well if you tune the caching:
+
+```js
+function staticMapper(requestUrl) {
+  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
+  return path.join('example', 'static', ...parts)
+}
+
+const options = {
+  useGzip: true,
+  useCache: true,
+  cacheControl: 'cache, public, max-age=432000'
+}
+
+const static = [
+  src(/^\/(css|js|image)/, staticMapper, options)
 ]
 
 server(
@@ -397,6 +422,7 @@ function staticMapper(requestUrl) {
 
 const options = {
   useGzip: true,
+  useCache: true,
   cacheControl: 'cache, public, max-age=432000',
   allowedOrigins: [ '1.0.15.220', '1.0.15.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default

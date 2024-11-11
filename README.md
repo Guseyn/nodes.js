@@ -243,6 +243,49 @@ server(
 )()
 ```
 
+You can set `maxSize` for request body in `MB`:
+
+```js
+const body = require('./../nodes/body')
+const RequestBodySizeExceededMaxSizeError = require('./../nodes/RequestBodySizeExceededMaxSizeError')
+
+const api = [
+  endpoint('/echo', 'POST', async ({ stream }) => {
+    try {
+      const reqBody = JSON.parse(
+        await body(stream, {
+          maxSize: 1
+        }).toString('utf-8')
+      )
+      stream.respond({
+        status: 200,
+        'content-type': 'application/json'
+      })
+      stream.end(JSON.stringify(reqBody))
+    } catch (error) {
+      if (error instanceof RequestBodySizeExceededMaxSizeError) {
+        stream.respond({
+          status: 413,
+          'content-type': 'application/json'
+        })
+        // error.message is `Request body size exceeded max size(${maxSize} mb)`
+        stream.end(error.message)
+      } else {
+        stream.respond({
+          status: 500,
+          'content-type': 'application/json'
+        })
+        stream.end('Error while reading request body')
+      }
+    }
+  })
+]
+
+server(
+  app({ api })
+)()
+```
+
 You can access to config (which is also accessible via `global.config`):
 
 ```js

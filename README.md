@@ -432,7 +432,7 @@ server(
 
 Caching works via `ETag` header. It means that if you modify your files in your file system, the server will detect that and invalidate the cache, otherwise it will send to the browser: `304 Not Modified`.
 
-You can add `cacheControl` as well if you tune the caching:
+You can add `cacheControl` as well if you want to tune the caching:
 
 ```js
 function staticMapper(requestUrl) {

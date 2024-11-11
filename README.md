@@ -55,7 +55,7 @@ Config at least must contain following values:
 
 ```json
 {
-  "host": "1.0.17.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./ssl/key.pem",
   "cert": "./ssl/cert.pem"
@@ -556,7 +556,7 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 // local.env
 
 {
-  "host": "1.0.17.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./example/ssl/key.pem",
   "cert": "./example/ssl/cert.pem",

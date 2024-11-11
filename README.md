@@ -517,10 +517,13 @@ process.kill(primaryProcessId, 'SIGUSR1')
 console.log(
 `
 We just sent SIGUSR1 to the primary process with pid: ${primaryProcessId}.
+Version: ${version}, environment: ${environment}.
 
 Then primary process will send message to its subprocesses to exit with code 0.
 It will restart them (gracefully and with timeout one by one).
-That will allow to reach zero downtime while we restarting the application with new codebase.
+That will allow to reach zero downtime while we restarting the application with new codebase (everything in worker.js).
+
+P.S.: If you need to update primary.js as well, you need to shutdown whole application and run it again.
 `
 )
 ````
@@ -611,9 +614,9 @@ If you use `output.log` file, you can also see all logs of the application, sinc
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-JavaScript                      26             78              1           1046
+JavaScript                      27             81              5           1092
 -------------------------------------------------------------------------------
-SUM:                            26             78              1           1046
+SUM:                            27             81              5           1092
 -------------------------------------------------------------------------------
 ```
 

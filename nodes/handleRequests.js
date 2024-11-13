@@ -6,7 +6,7 @@ const urlParamsAndQueries = require('./urlParamsAndQueries')
 const defaultSrcNotFoundHandler = require('./defaultSrcNotFoundHandler')
 const defaultSrcNotAccessibleHandler = require('./defaultSrcNotAccessibleHandler')
 const defaultEndpointNotAllowedHandler = require('./defaultEndpointNotAllowedHandler')
-const defaultSrcMapper = require('./defaultSrcMapper')
+const pathByUrl = require('./pathByUrl')
 const streamFile = require('./streamFile')
 const corsHandler = require('./corsHandler')
 const addCorsHeaders = require('./addCorsHeaders')
@@ -83,8 +83,9 @@ module.exports = async function handleRequests(app, stream, headers) {
       return isSrcMatchedWithRequestUrl(src, requestUrl, requestMethod)
     })
     if (matchedSrc) {
-      const srcMapper = matchedSrc.mapper || defaultSrcMapper
-      const resolvedFilePath = srcMapper(requestUrl)
+      const srcMapper = matchedSrc.mapper
+      const baseFolder = matchedSrc.baseFolder
+      const resolvedFilePath = pathByUrl(requestUrl, srcMapper, baseFolder)
       fs.stat(resolvedFilePath, async (err, stats) => {
         if (err) {
           if (err.code === 'ENOENT') {

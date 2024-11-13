@@ -1,4 +1,6 @@
-module.exports = function src(urlPattern, mapper, {
+module.exports = function src(urlPattern, {
+  mapper,
+  baseFolder,
   fileNotFound,
   fileNotAccessible,
   useGzip,
@@ -13,6 +15,7 @@ module.exports = function src(urlPattern, mapper, {
   return {
     urlPattern,
     mapper,
+    baseFolder,
     fileNotFound,
     fileNotAccessible,
     useGzip,

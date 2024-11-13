@@ -4,6 +4,59 @@
 
 NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero dependencies, super simple, you can hack it!
 
+# Table of Contents
+
+1. [Introduction](#introduction)
+   - [Why do we need another framework for Node.js?](#why-do-we-need-another-framework-for-nodejs)
+   - [How it works](#how-it-works)
+
+2. [Installation](#installation)
+   - [Setting up `main.js`](#setting-up-mainjs)
+   - [Setting up `primary.js`](#setting-up-primaryjs)
+   - [Setting up `worker.js`](#setting-up-workerjs)
+   
+3. [Configuration](#configuration)
+   - [Environment Configuration](#environment-configuration)
+   - [Log File Configuration](#log-file-configuration)
+   
+4. [API](#api)
+   - [Creating Endpoints](#creating-endpoints)
+   - [Using URL Params and Queries](#using-url-params-and-queries)
+   - [Reading Request Body](#reading-request-body)
+   - [Setting Request Body Size Limit](#setting-request-body-size-limit)
+   - [Accessing Configuration](#accessing-configuration)
+   - [Enabling CORS](#enabling-cors)
+
+5. [Static Files](#static-files)
+   - [Serving Static Files](#serving-static-files)
+   - [Using `mapper` to Map URLs](#using-mapper-to-map-urls)
+   - [Serving Files with `baseFolder`](#serving-files-with-basefolder)
+   - [Applying Compression](#applying-compression)
+   - [Caching Static Files](#caching-static-files)
+   - [Setting Cache Control](#setting-cache-control)
+   - [Configuring CORS for Static Files](#configuring-cors-for-static-files)
+   - [Handling `404` and `403` Errors for Static Files](#handling-404-and-403-errors-for-static-files)
+
+6. [Process Management](#process-management)
+   - [Graceful Restart with `restart.js`](#graceful-restart-with-restartjs)
+   - [Zero Downtime Updates](#zero-downtime-updates)
+
+7. [Security](#security)
+   - [Reading Secrets from Terminal](#reading-secrets-from-terminal)
+
+8. [Examples](#examples)
+   - [Running Example Locally](#running-example-locally)
+   - [Running Example with Docker](#running-example-with-docker)
+   - [Restarting Example in Docker](#restarting-example-in-docker)
+
+9. [CDN Support](#cdn-support)
+   - [Adding CDN URLs in Production](#adding-cdn-urls-in-production)
+   - [Removing CDN URLs in Local Environment](#removing-cdn-urls-in-local-environment)
+
+10. [Additional Information](#additional-information)
+    - [Code Metrics](#code-metrics)
+    - [Next Goals](#next-goals)
+
 ## Why do we need another framework for Node.js?
 
 This is my wish list:
@@ -23,7 +76,8 @@ This is my wish list:
 13. I want to have control when I read the `body` of my requests.
 14. I want to have quick access to my external dependencies, like database clients and other integrations, without attaching them to the `request` object. I want to have dependency injection without any huge frameworks.
 15. I want to easily configure my `index.html` and `not-found.html` files.
-16. I want to focus on building my products quickly and making money.
+16. I want to apply CDN urls on my static HTML and MD files.
+17. I want to focus on building my products quickly and making money.
 
 ## How it works
 
@@ -370,16 +424,16 @@ server(
 
 ### Static files
 
-You can setup static server in any way you want via static mapper:
+You can setup static server in any way you want via src mapper:
 
 ```js
-function staticMapper(requestUrl) {
+function mapper(requestUrl) {
   const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
   return path.join('example', 'static', ...parts)
 }
 
 const static = [
-  src(/^\/(html|css|js|image)/, staticMapper)
+  src(/^\/(html|css|js|image)/, { mapper })
 ]
 
 server(
@@ -387,20 +441,34 @@ server(
 )()
 ```
 
-Function `staticMapper` allows to map any url to a path in file system. And you can decide yourslef about how this mapping works. You can add multiple `src()` in `static`. 
+Function `mapper` allows to map any url to a path in file system. And you can decide yourslef about how this mapping works. You can add multiple `src()` in `static`. 
 
 Headers like `content-type`, `content-length` and `:status` are being set automatically.
+
+If you just want to declare a folder that you want to serve, you can just use `baseFolder` property instead of `mapper`.
+
+```js
+const baseFolder = path.join('example', 'static')
+
+const static = [
+  src(/^\/(html|css|js|image)/, { baseFolder })
+]
+
+server(
+  app({ static })
+)()
+```
+
+Your files will be mapped in the same manner as `mapper` mentioned above, except here you simply define your base folder by the property.
 
 You can apply compression to files:
 
 ```js
-function staticMapper(requestUrl) {
-  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
-  return path.join('example', 'static', ...parts)
-}
+const baseFolder = path.join('example', 'static')
 
 const static = [
-  src(/^\/(html|css|js|image)/, staticMapper, {
+  src(/^\/(html|css|js|image)/, {
+    baseFolder,
     useGzip: true
   })
 ]
@@ -413,13 +481,11 @@ server(
 You can add caching:
 
 ```js
-function staticMapper(requestUrl) {
-  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
-  return path.join('example', 'static', ...parts)
-}
+const baseFolder = path.join('example', 'static')
 
 const static = [
-  src(/^\/(css|js|image)/, staticMapper, {
+  src(/^\/(css|js|image)/, {
+    baseFolder,
     useGzip: true,
     useCache: true
   })
@@ -435,19 +501,17 @@ Caching works via `ETag` header. It means that if you modify your files in your 
 You can add `cacheControl` as well if you want to tune the caching:
 
 ```js
-function staticMapper(requestUrl) {
-  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
-  return path.join('example', 'static', ...parts)
-}
+const baseFolder = path.join('example', 'static')
 
 const options = {
+  baseFolder,
   useGzip: true,
   useCache: true,
   cacheControl: 'cache, public, max-age=432000'
 }
 
 const static = [
-  src(/^\/(css|js|image)/, staticMapper, options)
+  src(/^\/(css|js|image)/, options)
 ]
 
 server(
@@ -458,12 +522,10 @@ server(
 You can also add CORS:
 
 ```js
-function staticMapper(requestUrl) {
-  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
-  return path.join('example', 'static', ...parts)
-}
+const baseFolder = path.join('example', 'static')
 
 const options = {
+  baseFolder,
   useGzip: true,
   useCache: true,
   cacheControl: 'cache, public, max-age=432000',
@@ -475,7 +537,7 @@ const options = {
 }
 
 const static = [
-  src(/^\/(css|js|image)/, staticMapper, options)
+  src(/^\/(css|js|image)/, options)
 ]
 
 server(
@@ -486,18 +548,16 @@ server(
 For each `src`, you can add properties `fileNotFound` and `fileNotAccessible`. They configure files that server returns for `404` and `403` statuses.
 
 ```js
-function staticMapper(requestUrl) {
-  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
-  return path.join('example', 'static', ...parts)
-}
+const baseFolder = path.join('example', 'static')
 
 const options = {
+  baseFolder,
   fileNotFound: 'example/static/html/not-found.html',
   fileNotAccessible: 'example/static/html/not-accessible.html'
 }
 
 const static = [
-  src(/^\/(html|css|js|image)/, staticMapper, options)
+  src(/^\/(html|css|js|image)/, options)
 ]
 
 server(
@@ -608,6 +668,24 @@ npm run example:docker:prod:restart
 
 If you use `output.log` file, you can also see all logs of the application, since it's also bound to the container.
 
+## CDN Urls
+
+In you `primary.js` and `restart.js`, you can call a function that replaces all your relative urls with CDN urls if it's production:
+
+```js
+const addCdnToUrls = require('./../nodes/addCdnToUrls')
+const removeCdnFromUrls = require('./../nodes/removeCdnFromUrls')
+
+if (process.env.ENV === 'prod') {
+  addCdnToUrls('example/static', 'https://cdn.domain.com')
+} else {
+  // in local env, we can remove CDN urls
+  removeCdnFromUrls('example/static', 'https://cdn.domain.com')
+}
+```
+
+Async functions `addCdnToUrls` and `removeCdnFromUrls` process all HTML and MD files in specified static folder.
+
 ## cloc (nodes folder)
 
 ```bash
@@ -623,6 +701,8 @@ SUM:                            27             81              5           1092
 ## Next Goals
 
 - [x] Add Docker Support
-- [ ] Add Let's Encrypt Support out of box
+- [x] Add CDN support without any build tools
+- [ ] Add cache versions for static files
+- [x] Add Let's Encrypt Support out of box
 - [ ] Add admin panel
   - [ ] Add log reader

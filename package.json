@@ -10,8 +10,8 @@
     "example:prod:start": "ENV=prod npm run example:start",
     "example:local:restart": "ENV=local npm run example:restart",
     "example:prod:restart": "ENV=prod npm run example:restart",
-    "example:docker:local:start": "ENV=local docker-compose -f docker-compose.yml up --build --force-recreate",
-    "example:docker:prod:start": "ENV=prod docker-compose -f docker-compose.prod.yml up --build --force-recreate",
+    "example:docker:local:start": "docker-compose -f docker-compose.yml up --build --force-recreate --remove-orphans",
+    "example:docker:prod:start": "DOMAIN=domain.com DOMAIN_EMAIL=domain@domain.com docker-compose -f docker-compose.prod.yml up --build --force-recreate --remove-orphans",
     "example:docker:local:restart": "docker exec -it nodes-app npm run example:local:restart",
     "example:docker:prod:restart": "docker exec -it nodes-app npm run example:prod:restart"
   },

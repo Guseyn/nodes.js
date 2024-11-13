@@ -5,7 +5,7 @@ const fs = require('fs')
 const acmeChallengeUrlPattern = /^\/\.well-known\/acme-challenge/
 
 module.exports = function proxyServer(
-  targetServerHost, targetServerPort
+  proxyPort, targetServerHost, targetServerPort
 ) {
   const server = http.createServer((req, res) => {
     let reqUrl = req.url
@@ -32,13 +32,12 @@ module.exports = function proxyServer(
       'Location': `https://${targetServerHost}:${targetServerPort}${reqUrl}`
     })
     if (!res.writableEnded && !res.destroyed) {
-      console.log('okokoko')
       res.end()
     }
   })
   return function serverListener() {
-    server.listen(8005, targetServerHost, () => {
-      console.log(`HTTP proxy server running at http://0.0.0.0:80`)
+    server.listen(proxyPort, targetServerHost, () => {
+      global.log(`HTTP proxy server running at http://0.0.0.0:${proxyPort}`)
     })
   }
 }

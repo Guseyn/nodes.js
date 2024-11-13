@@ -1,6 +1,6 @@
 const RequestBodySizeExceededMaxSizeError = require('./RequestBodySizeExceededMaxSizeError')
 
-module.exports = function body(stream, { maxSize }) {
+module.exports = function body(stream, { maxSize } = {}) {
   const maxSizeInBytes = maxSize ? maxSize * 1e6 : undefined
   return new Promise((resolve, reject) => {
     const body = []

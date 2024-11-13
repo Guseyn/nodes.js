@@ -11,12 +11,14 @@ services:
       - ./output.log:/app/output.log
       - ./nodes:/app/nodes
       - ./example:/app/example
+      - ./example/.well-known/acme-challenge:/app/.well-known/acme-challenge  # Mount ACME challenge folder
+      - ./example/ssl:/app/example/ssl  # Mount folder for SSL certs inside app/example/ssl
     ports:
       - "8004:8004"
     networks:
       - app-network
     # Override CMD in Dockerfile with my ENV variable
-    command: sh -c "ENV=$ENV npm run example:start"
+    command: sh -c "npm run example:local:start"
 
 networks:
   app-network:

@@ -386,7 +386,7 @@ server(
 
 Property `allowedOrigins` is the only thing you need to pass to enable CORS for `src`, other properties are optional.
 
-#### Using Dependecies
+#### Using dependencies
 
 In your endpoint handlers, you also have an access to dependecies (`deps`). You can declare dependencies in `worker.js` and you can mutate them in your endpoints as well.
 

@@ -6,56 +6,35 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 
 # Table of Contents
 
-1. [Introduction](#introduction)
-   - [Why do we need another framework for Node.js?](#why-do-we-need-another-framework-for-nodejs)
-   - [How it works](#how-it-works)
+1. [Why do we need another framework for Node.js?](#why-do-we-need-another-framework-for-nodejs)
+2. [How it works](#how-it-works)
+3. [Setting up main.js](#setting-up-mainjs)
+   - [Configuration](#configuration)
+   - [Log File](#log-file)
+4. [Setting up primary.js](#setting-up-primaryjs)
+5. [Setting up worker.js](#setting-up-workerjs)
+   - [Index file](#index-file)
+   - [API](#api)
+     - [Using headers](#using-headers)
+     - [Using params and queries](#using-params-and-queries)
+     - [Reading request body](#reading-request-body)
+     - [Max size for request body](#max-size-for-request-body)
+     - [Using config](#using-config)
+     - [Enabling CORS](#enabling-cors)
+     - [Using Dependencies](#using-dependencies)
+6. [Static files](#static-files)
+   - [ETag caching](#etag-caching)
+   - [Cache control](#cache-control)
+   - [Enabling CORS](#enabling-cors-1)
+   - [Setting up `fileNotFound`, `fileNotAccessible`](#setting-up-filenotfound-filenotaccessible)
+7. [Setting up restart.js](#setting-up-restartjs)
+8. [Reading secrets from terminal](#reading-secrets-from-terminal)
+9. [Running example](#running-example)
+10. [Docker](#docker)
+11. [CDN Urls](#cdn-urls)
+12. [cloc (nodes folder)](#cloc-nodes-folder)
+13. [Next Goals](#next-goals)
 
-2. [Installation](#installation)
-   - [Setting up `main.js`](#setting-up-mainjs)
-   - [Setting up `primary.js`](#setting-up-primaryjs)
-   - [Setting up `worker.js`](#setting-up-workerjs)
-   
-3. [Configuration](#configuration)
-   - [Environment Configuration](#environment-configuration)
-   - [Log File Configuration](#log-file-configuration)
-   
-4. [API](#api)
-   - [Creating Endpoints](#creating-endpoints)
-   - [Using URL Params and Queries](#using-url-params-and-queries)
-   - [Reading Request Body](#reading-request-body)
-   - [Setting Request Body Size Limit](#setting-request-body-size-limit)
-   - [Accessing Configuration](#accessing-configuration)
-   - [Enabling CORS](#enabling-cors)
-
-5. [Static Files](#static-files)
-   - [Serving Static Files](#serving-static-files)
-   - [Using `mapper` to Map URLs](#using-mapper-to-map-urls)
-   - [Serving Files with `baseFolder`](#serving-files-with-basefolder)
-   - [Applying Compression](#applying-compression)
-   - [Caching Static Files](#caching-static-files)
-   - [Setting Cache Control](#setting-cache-control)
-   - [Configuring CORS for Static Files](#configuring-cors-for-static-files)
-   - [Handling `404` and `403` Errors for Static Files](#handling-404-and-403-errors-for-static-files)
-
-6. [Process Management](#process-management)
-   - [Graceful Restart with `restart.js`](#graceful-restart-with-restartjs)
-   - [Zero Downtime Updates](#zero-downtime-updates)
-
-7. [Security](#security)
-   - [Reading Secrets from Terminal](#reading-secrets-from-terminal)
-
-8. [Examples](#examples)
-   - [Running Example Locally](#running-example-locally)
-   - [Running Example with Docker](#running-example-with-docker)
-   - [Restarting Example in Docker](#restarting-example-in-docker)
-
-9. [CDN Support](#cdn-support)
-   - [Adding CDN URLs in Production](#adding-cdn-urls-in-production)
-   - [Removing CDN URLs in Local Environment](#removing-cdn-urls-in-local-environment)
-
-10. [Additional Information](#additional-information)
-    - [Code Metrics](#code-metrics)
-    - [Next Goals](#next-goals)
 
 ## Why do we need another framework for Node.js?
 
@@ -83,7 +62,7 @@ This is my wish list:
 
 After you clone this repository, you can create `app` directory alongside with `nodes` folder in the root. 
 
-### main.js
+## Setting up main.js
 
 Create `main.js` file in you application where you declare cluster api with two scripts: primary and worker scripts:
 
@@ -101,15 +80,17 @@ const config = JSON.parse(
 cluster('example/primary.js', 'example/worker.js')({ config })
 ```
 
-In this case it's `example` application, which you can rename it. You also must provide `config` object.
+In this case it's `example` application, which you can rename it. 
 
-The most practical way is to create `env` folder with `local.json` and let's say `prod.json` files and load it depending on the environment (`ENV`).
+### Configration
+
+You also must provide `config` object. The most practical way is to create `env` folder with `local.json` and let's say `prod.json` files and load it depending on the environment (`ENV`).
 
 Config at least must contain following values:
 
 ```json
 {
-  "host": "1.0.18.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./ssl/key.pem",
   "cert": "./ssl/cert.pem"
@@ -135,6 +116,8 @@ cluster('example/primary.js', 'example/worker.js')({ numberOfWorkers, config })
 
 Config file eventually will be avaible via `global.config` in your `primary.js` and `worker.js`.
 
+### Log File
+
 You can also write all your logs to file by adding `logFile` property:
 
 ```js
@@ -156,13 +139,13 @@ cluster('example/primary.js', 'example/worker.js')({ config, logFile })
 Logs in the file have following format:
 
 ```
-2024-11-09T15:21:03.885Z - worker (pid:35119) - HTTP/2 server running at https://1.0.18.0:8004
-2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.18.0:8004
+2024-11-09T15:21:03.885Z - worker (pid:35119) - HTTP/2 server running at https://1.0.17.0:8004
+2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.17.0:8004
 ```
 
 Use `global.log()` function to write logs to file. By default, this function writes to console.
 
-### primary.js
+## Setting up primary.js
 
 Your `primary.js` can be used for running other processes, if you need something more than just a server application. In our case we can leave it empty:
 
@@ -174,7 +157,7 @@ Your `primary.js` can be used for running other processes, if you need something
 // we can use global.config, global.log()
 ```
 
-### worker.js
+## Setting up worker.js
 
 Your `worker.js` creates a server applicaiton. The API has following composable structure:
 
@@ -201,7 +184,7 @@ server(
 
 Your `server` incapsulates `app` which is just an object with `api`, `static`, `deps` properties. Your `api` is a list of endpoints (`endpoint()[]`) and your `static` property is responsible for public sources (`src()[]`).
 
-### Index File
+### Index file
 
 Property `indexFile` allows to specify default HTML file for index route `/`.
 
@@ -226,6 +209,8 @@ server(
 ```
 
 First argument is a pattern of your URL that must match for the endpoint to be invoked. You can also use RegExp. Second argument is method. You can also declare multiple methods: 'GET,OPTIONS'. Third argument is a callback which is being invoked when the endpoint matches a user's request.
+
+#### Using headers
 
 In the endpoint callback, you can also use incoming headers:
 
@@ -253,6 +238,8 @@ server(
 )()
 ````
 
+#### Using params and queries
+
 You can also easily get all urls' params and queries:
 
 ```js
@@ -272,6 +259,8 @@ server(
   app({ api })
 )()
 ```
+
+#### Reading request body
 
 You can also easily read whole body of your request via a function `body()` provided by the framework:
 
@@ -296,6 +285,8 @@ server(
   app({ api })
 )()
 ```
+
+#### Max size for request body
 
 You can set `maxSize` for request body in `MB`:
 
@@ -340,6 +331,8 @@ server(
 )()
 ```
 
+#### Using config
+
 You can access to config (which is also accessible via `global.config`):
 
 ```js
@@ -358,6 +351,8 @@ server(
 )()
 ```
 
+#### Enabling CORS
+
 And this is how you can enable CORS for an endpoint:
 
 ```js
@@ -373,7 +368,7 @@ const handler = ({
 
 const corsOptions = {
   cacheControl: 'cache, public, max-age=432000',
-  allowedOrigins: [ '1.0.18.220', '1.0.18.1:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '1.0.17.220', '1.0.17.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -391,7 +386,7 @@ server(
 
 Property `allowedOrigins` is the only thing you need to pass to enable CORS for `src`, other properties are optional.
 
-### Dependecies
+#### Using Dependecies
 
 In your endpoint handlers, you also have an access to dependecies (`deps`). You can declare dependencies in `worker.js` and you can mutate them in your endpoints as well.
 
@@ -478,6 +473,8 @@ server(
 )()
 ```
 
+#### ETag caching
+
 You can add caching:
 
 ```js
@@ -497,6 +494,8 @@ server(
 ```
 
 Caching works via `ETag` header. It means that if you modify your files in your file system, the server will detect that and invalidate the cache, otherwise it will send to the browser: `304 Not Modified`.
+
+#### Cache control
 
 You can add `cacheControl` as well if you want to tune the caching:
 
@@ -519,6 +518,8 @@ server(
 )()
 ```
 
+#### Enabling CORS
+
 You can also add CORS:
 
 ```js
@@ -529,7 +530,7 @@ const options = {
   useGzip: true,
   useCache: true,
   cacheControl: 'cache, public, max-age=432000',
-  allowedOrigins: [ '1.0.18.220', '1.0.18.1:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '1.0.17.220', '1.0.17.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -544,6 +545,8 @@ server(
   app({ static })
 )()
 ```
+
+#### Seting up `fileNotFound`, `fileNotAccessible`
 
 For each `src`, you can add properties `fileNotFound` and `fileNotAccessible`. They configure files that server returns for `404` and `403` statuses.
 
@@ -564,7 +567,7 @@ server(
   app({ static })
 )()
 ````
-### restart.js
+## Setting up restart.js
 
 You can create a file `restart.js` that restarts all your servers one by one. All you need to do is just to send a signal to main process:
 
@@ -616,7 +619,7 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 // local.env
 
 {
-  "host": "1.0.18.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./example/ssl/key.pem",
   "cert": "./example/ssl/cert.pem",
@@ -626,7 +629,7 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 
 It's very simple and you do it rarely, because `restart.js` does not delete your config with entered secrets.
 
-## Example
+## Running example
 
 You can run example locally:
 
@@ -692,17 +695,17 @@ Async functions `addCdnToUrls` and `removeCdnFromUrls` process all HTML and MD f
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-JavaScript                      27             81              5           1092
+JavaScript                      30            110             21           1240
 -------------------------------------------------------------------------------
-SUM:                            27             81              5           1092
+SUM:                            30            110             21           1240
 -------------------------------------------------------------------------------
 ```
 
 ## Next Goals
 
 - [x] Add Docker Support
-- [x] Add CDN support without any build tools
+- [ ] Add CDN support without any build tools
 - [ ] Add cache versions for static files
-- [x] Add Let's Encrypt Support out of box
+- [ ] Add Let's Encrypt Support out of box
 - [ ] Add admin panel
   - [ ] Add log reader

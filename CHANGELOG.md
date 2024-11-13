@@ -1,5 +1,8 @@
-# Release 1.0.17
+# Release 1.0.18
 
-03109ba update version in package.json to 1.0.17 (guseyn, Mon Nov 11 16:58:25 2024 +0400)
-82247bc add maxSize property to body() (guseyn, Mon Nov 11 16:58:22 2024 +0400)
-ad0b973 some progress on let's encrypt (guseyn, Mon Nov 11 01:09:34 2024 +0400)
+3af37fa update version in package.json to 1.0.18 (guseyn, Wed Nov 13 22:03:22 2024 +0400)
+499266b add CDN, fix minor bugs (guseyn, Wed Nov 13 22:03:19 2024 +0400)
+924e6b5 update readme (guseyn, Mon Nov 11 20:22:23 2024 +0400)
+5ebb974 add .gitkeep for ./well-known/acme-challeng (guseyn, Mon Nov 11 17:39:51 2024 +0400)
+8aa4c94 update readme (guseyn, Mon Nov 11 17:11:41 2024 +0400)
+83ea98c fix typo (guseyn, Mon Nov 11 17:09:47 2024 +0400)

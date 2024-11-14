@@ -28,7 +28,7 @@ jobs:
     - run: npm run lint
 
   release:
-    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'v1.') && contains(github.event.head_commit.message, '.')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
     steps:

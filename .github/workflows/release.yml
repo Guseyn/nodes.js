@@ -1,4 +1,4 @@
-name: nodes.js CI
+name: nodes.js release
 
 permissions:
   contents: write

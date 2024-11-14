@@ -369,7 +369,7 @@ const handler = ({
 }
 
 const corsOptions = {
-  allowedOrigins: [ '1.0.24.220', '1.0.24.1:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '0.0.0.0:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -527,7 +527,7 @@ const baseFolder = path.join('example', 'static')
 
 const options = {
   baseFolder,
-  allowedOrigins: [ '1.0.24.220', '1.0.24.1:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '0.0.0.0:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -616,7 +616,7 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 // local.env
 
 {
-  "host": "1.0.24.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./example/ssl/key.pem",
   "cert": "./example/ssl/cert.pem",

@@ -26,7 +26,7 @@ $commitData"
 echo "$changelog" > CHANGELOG.md
 
 # update README with new version
-awk -v version="$version" '{gsub(/[0-9]+\.[0-9]+\.[0-9]+/, version)}1' README.md > README.md.tmp
+awk -v version="$version" '{gsub(/v[0-9]+\.[0-9]+\.[0-9]+/, version)}1' README.md > README.md.tmp
 mv README.md.tmp README.md
 git add --all
 git commit -m "$version" && git tag -a "v$version" -m "$version"

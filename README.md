@@ -1,6 +1,6 @@
 ![nodes.js](logo.svg)
 
-**v1.0.25**
+**v1.0.24**
 
 [![nodes.js CI](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.yml/badge.svg?branch=main)](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.yml)
 
@@ -94,7 +94,7 @@ Config at least must contain following values:
 
 ```json
 {
-  "host": "1.0.25.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./ssl/key.pem",
   "cert": "./ssl/cert.pem"
@@ -143,8 +143,8 @@ cluster('example/primary.js', 'example/worker.js')({ config, logFile })
 Logs in the file have following format:
 
 ```
-2024-11-09T15:21:03.885Z - worker (pid:35119) - HTTP/2 server running at https://1.0.25.0:8004
-2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.25.0:8004
+2024-11-09T15:21:03.885Z - worker (pid:35119) - HTTP/2 server running at https://1.0.24.0:8004
+2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.24.0:8004
 ```
 
 Use `global.log()` function to write logs to file. By default, this function writes to console.
@@ -371,7 +371,7 @@ const handler = ({
 }
 
 const corsOptions = {
-  allowedOrigins: [ '1.0.25.0:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '0.0.0.0:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -529,7 +529,7 @@ const baseFolder = path.join('example', 'static')
 
 const options = {
   baseFolder,
-  allowedOrigins: [ '1.0.25.0:8004' ], // can also be just a string '*' (default)
+  allowedOrigins: [ '0.0.0.0:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
@@ -618,7 +618,7 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 // local.env
 
 {
-  "host": "1.0.25.0",
+  "host": "0.0.0.0",
   "port": 8004,
   "key": "./example/ssl/key.pem",
   "cert": "./example/ssl/cert.pem",

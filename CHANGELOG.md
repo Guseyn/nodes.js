@@ -1,19 +1,5 @@
-# Release 1.0.24
+# Release 1.0.25
 
-869ce60 update version in package.json to 1.0.24 (guseyn, Fri Nov 15 00:09:42 2024 +0400)
-016c5bc fix type error (guseyn, Fri Nov 15 00:09:39 2024 +0400)
-b6afdf7 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
-5b1fcfe update version in package.json to 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
-0984364 fix ehtml logo (guseyn, Thu Nov 14 21:53:57 2024 +0400)
-c675e7a 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
-135b6fc update version in package.json to 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
-91fff36 fix release (guseyn, Thu Nov 14 21:42:11 2024 +0400)
-a75ff8b fix release (guseyn, Thu Nov 14 21:33:13 2024 +0400)
-e6e799f fix release (guseyn, Thu Nov 14 21:28:32 2024 +0400)
-3d54eab fix release (guseyn, Thu Nov 14 21:26:19 2024 +0400)
-7743e31 fix release (guseyn, Thu Nov 14 21:18:36 2024 +0400)
-d7df019 name release (guseyn, Thu Nov 14 21:16:25 2024 +0400)
-adeea7c fix release (guseyn, Thu Nov 14 21:15:32 2024 +0400)
-1a08bad add release file (guseyn, Thu Nov 14 21:14:13 2024 +0400)
-32c949b 1.0.21 (guseyn, Thu Nov 14 21:03:47 2024 +0400)
-5936e1b update version in package.json to 1.0.21 (guseyn, Thu Nov 14 21:03:47 2024 +0400)
+98c0e65 update version in package.json to 1.0.25 (guseyn, Fri Nov 15 00:16:50 2024 +0400)
+d129373 add v in readme (guseyn, Fri Nov 15 00:16:48 2024 +0400)
+98ac41a update (guseyn, Fri Nov 15 00:15:18 2024 +0400)

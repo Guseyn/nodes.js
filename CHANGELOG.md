@@ -1,3 +1,13 @@
-# Release 1.0.21
+# Release 1.0.22
 
-4d84afe update version in package.json to 1.0.21 (guseyn, Thu Nov 14 21:03:47 2024 +0400)
+3aad2bb update version in package.json to 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
+2892dbc fix release (guseyn, Thu Nov 14 21:42:11 2024 +0400)
+a75ff8b fix release (guseyn, Thu Nov 14 21:33:13 2024 +0400)
+e6e799f fix release (guseyn, Thu Nov 14 21:28:32 2024 +0400)
+3d54eab fix release (guseyn, Thu Nov 14 21:26:19 2024 +0400)
+7743e31 fix release (guseyn, Thu Nov 14 21:18:36 2024 +0400)
+d7df019 name release (guseyn, Thu Nov 14 21:16:25 2024 +0400)
+adeea7c fix release (guseyn, Thu Nov 14 21:15:32 2024 +0400)
+1a08bad add release file (guseyn, Thu Nov 14 21:14:13 2024 +0400)
+32c949b 1.0.21 (guseyn, Thu Nov 14 21:03:47 2024 +0400)
+5936e1b update version in package.json to 1.0.21 (guseyn, Thu Nov 14 21:03:47 2024 +0400)

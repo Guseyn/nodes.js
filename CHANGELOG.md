@@ -1,7 +1,10 @@
-# Release 1.0.23
+# Release 1.0.24
 
-06c2011 update version in package.json to 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
-42a990d fix ehtml logo (guseyn, Thu Nov 14 21:53:57 2024 +0400)
+869ce60 update version in package.json to 1.0.24 (guseyn, Fri Nov 15 00:09:42 2024 +0400)
+016c5bc fix type error (guseyn, Fri Nov 15 00:09:39 2024 +0400)
+b6afdf7 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
+5b1fcfe update version in package.json to 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
+0984364 fix ehtml logo (guseyn, Thu Nov 14 21:53:57 2024 +0400)
 c675e7a 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
 135b6fc update version in package.json to 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
 91fff36 fix release (guseyn, Thu Nov 14 21:42:11 2024 +0400)

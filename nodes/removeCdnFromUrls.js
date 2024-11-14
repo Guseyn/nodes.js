@@ -2,7 +2,7 @@ const fs = require('fs').promises // Use fs.promises for async/await
 const path = require('path')
 
 async function removeCdnUrlsFromHtml(htmlContent, cdnBaseUrl) {
-  const tagRegex = /<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view)([^>]*)>/g
+  const tagRegex = /<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g
 
   return htmlContent.replace(tagRegex, (match, tagName, attributes) => {
     attributes = attributes.replace(/(href|src)="(https?:\/\/[^"]+)"/g, (attrMatch, attribute, fullUrl) => {
@@ -27,7 +27,7 @@ async function removeCdnUrlsFromMarkdown(mdContent, cdnBaseUrl) {
   })
 
   // Step 2: Adjust relative paths in HTML tags within the Markdown content
-  mdContent = mdContent.replace(/<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view)([^>]*)>/g, (match, tagName, attributes) => {
+  mdContent = mdContent.replace(/<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g, (match, tagName, attributes) => {
     attributes = attributes.replace(/(href|src|data-src)="(https?:\/\/[^"]+)"/g, (attrMatch, attribute, fullUrl) => {
       if (fullUrl.startsWith(cdnBaseUrl)) {
         const relativePath = fullUrl.replace(cdnBaseUrl, '')

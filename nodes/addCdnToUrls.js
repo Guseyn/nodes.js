@@ -2,13 +2,16 @@ const fs = require('fs').promises // Use fs.promises for async/await
 const path = require('path')
 
 async function adjustPathsInHTML(htmlContent, cdnBaseUrl) {
-  const tagRegex = /<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view)([^>]*)>/g
+  const tagRegex = /<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g
 
   return htmlContent.replace(tagRegex, (match, tagName, attributes) => {
     if (tagName === 'a') {
       return match
     }
     if (tagName === 'e-json') {
+      return match
+    }
+    if (/template\s+is="e-json"/.test(tagName)) {
       return match
     }
 
@@ -34,7 +37,17 @@ async function adjustPathsInMarkdown(mdContent, cdnBaseUrl) {
   })
 
   // Step 2: Adjust relative paths in HTML tags within the Markdown content
-  mdContent = mdContent.replace(/<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view)([^>]*)>/g, (match, tagName, attributes) => {
+  mdContent = mdContent.replace(/<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g, (match, tagName, attributes) => {
+    if (tagName === 'a') {
+      return match
+    }
+    if (tagName === 'e-json') {
+      return match
+    }
+    if (/template\s+is="e-json"/.test(tagName)) {
+      return match
+    }
+
     // Replace relative URLs in href, src, and data-src attributes
     attributes = attributes.replace(/(href|src|data-src)="(\/[^"]+)"/g, (attrMatch, attribute, relativeUrl) => {
       // Prepend the CDN base URL to relative URLs

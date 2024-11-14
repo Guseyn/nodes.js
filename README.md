@@ -32,8 +32,10 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 9. [Running example](#running-example)
 10. [Docker](#docker)
 11. [CDN Urls](#cdn-urls)
-12. [cloc (nodes folder)](#cloc-nodes-folder)
-13. [Next Goals](#next-goals)
+12. [EHTML integration](#ehtml-integration)
+13. [Cache versions in Urls](#cache-versions-in-urls)
+14. [cloc (nodes folder)](#cloc-nodes-folder)
+15. [Next Goals](#next-goals)
 
 
 ## Why do we need another framework for Node.js?
@@ -367,7 +369,6 @@ const handler = ({
 }
 
 const corsOptions = {
-  cacheControl: 'cache, public, max-age=432000',
   allowedOrigins: [ '1.0.19.220', '1.0.19.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
@@ -504,8 +505,7 @@ const baseFolder = path.join('example', 'static')
 
 const options = {
   baseFolder,
-  useGzip: true,
-  useCache: true,
+  useCache: true, // you can omit this, if you don't need ETag
   cacheControl: 'cache, public, max-age=432000'
 }
 
@@ -527,9 +527,6 @@ const baseFolder = path.join('example', 'static')
 
 const options = {
   baseFolder,
-  useGzip: true,
-  useCache: true,
-  cacheControl: 'cache, public, max-age=432000',
   allowedOrigins: [ '1.0.19.220', '1.0.19.1:8004' ], // can also be just a string '*' (default)
   allowedMethods: [ 'GET', 'OPTIONS' ], // it's default
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
@@ -546,7 +543,7 @@ server(
 )()
 ```
 
-#### Seting up `fileNotFound`, `fileNotAccessible`
+#### Setting up `fileNotFound`, `fileNotAccessible`
 
 For each `src`, you can add properties `fileNotFound` and `fileNotAccessible`. They configure files that server returns for `404` and `403` statuses.
 
@@ -689,6 +686,54 @@ if (process.env.ENV === 'prod') {
 
 Async functions `addCdnToUrls` and `removeCdnFromUrls` process all HTML and MD files in specified static folder.
 
+## Cache versions in Urls
+
+In your `primary.js` and `restart.js`, you can adjust urls with versions `?v=<hash>` in your html/md files. Hash is based on latest modified date of a file that is in the url.
+
+```js
+const removeCdnFromUrls = require('./../nodes/updateCacheVersions')
+
+updateCacheVersion('example/static')
+```
+
+You can also specify a `srcMapper` that can map a url to a path in the file system in your custom way.
+
+```js
+function srcMapper(baseFolder, requestUrl) {
+  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
+  return path.join('example', 'static', ...parts)
+}
+
+updateCacheVersion('example/static', srcMapper)
+```
+
+It works in combination with `cache-control`:
+
+```js
+// worker.js
+const baseFolder = 'example/static'
+
+const options = {
+  baseFolder,
+  useCache: true, // you can omit this, if you don't need ETag
+  cacheControl: 'cache, public, max-age=432000'
+}
+
+const static = [
+  src(/^\/(css|js|image)/, options)
+]
+
+server(
+  app({ static })
+)()
+```
+
+## EHTML Integration
+
+![ehtml](ehtml.svg)
+
+This framework is perfect in combination with [ETHML](https://e-html.org). CDN and cache versions also work with such elements as `e-html`, `e-svg`, `e-markdown`.
+
 ## cloc (nodes folder)
 
 ```bash
@@ -703,9 +748,4 @@ SUM:                            30            110             21           1240
 
 ## Next Goals
 
-- [x] Add Docker Support
-- [ ] Add CDN support without any build tools
-- [ ] Add cache versions for static files
-- [ ] Add Let's Encrypt Support out of box
 - [ ] Add admin panel
-  - [ ] Add log reader

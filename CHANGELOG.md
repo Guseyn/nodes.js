@@ -1,4 +1,4 @@
-# Release 1.0.27
+# Release 1.0.28
 
-d2aa57c update version in package.json to 1.0.27 (guseyn, Fri Nov 15 12:46:47 2024 +0400)
-00426f3 fix file streaming, improve cors logic + add docs on that, handle exit handle (guseyn, Fri Nov 15 12:45:27 2024 +0400)
+c2ae553 update version in package.json to 1.0.28 (guseyn, Fri Nov 15 18:05:41 2024 +0400)
+4ae0049 improve updateCacheVersions.js and docs in Readme (guseyn, Fri Nov 15 18:05:37 2024 +0400)

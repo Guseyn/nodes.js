@@ -29,7 +29,7 @@ services:
     volumes:
       - ./example/.well-known/acme-challenge:/app/.well-known/acme-challenge  # ACME challenge folder
       - ./example/ssl:/etc/letsencrypt  # Mount SSL cert folder
-    command: certonly --webroot --webroot-path=/app/.well-known/acme-challenge --email ${DOMAIN} --agree-tos --no-eff-email --staging -d ${DOMAIN_EMAIL}  # Replace with your domain
+    command: certonly --webroot --webroot-path=/app/.well-known/acme-challenge --email ${DOMAIN_EMAIL} --agree-tos --no-eff-email --staging -d ${DOMAIN}  # Replace with your domain
     networks:
       - app-network
 

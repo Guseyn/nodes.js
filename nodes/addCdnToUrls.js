@@ -61,7 +61,7 @@ async function adjustPathsInMarkdown(mdContent, cdnBaseUrl) {
   return mdContent
 }
 
-async function addCdnToUsl(dirPath, cdnBaseUrl) {
+async function addCdnToUrsl(dirPath, cdnBaseUrl) {
   try {
     // Read all files and directories in the given directory
     const files = await fs.readdir(dirPath, { withFileTypes: true })
@@ -72,7 +72,7 @@ async function addCdnToUsl(dirPath, cdnBaseUrl) {
 
       if (file.isDirectory()) {
         // Recursively process directories
-        await addCdnToUsl(fullPath, cdnBaseUrl)
+        await addCdnToUrsl(fullPath, cdnBaseUrl)
       } else if (file.isFile()) {
         const extname = path.extname(file.name).toLowerCase()
 
@@ -98,4 +98,4 @@ async function addCdnToUsl(dirPath, cdnBaseUrl) {
   }
 }
 
-module.exports = addCdnToUsl
+module.exports = addCdnToUrsl

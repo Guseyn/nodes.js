@@ -693,9 +693,9 @@ Async functions `addCdnToUrls` and `removeCdnFromUrls` process all HTML and MD f
 In your `primary.js` and `restart.js`, you can adjust urls with versions `?v=<hash>` in your html/md files. Hash is based on latest modified date of a file that is in the url.
 
 ```js
-const removeCdnFromUrls = require('./../nodes/updateCacheVersions')
+const updateCacheVersionsInUrls = require('./../nodes/updateCacheVersionsInUrls')
 
-updateCacheVersion('example/static')
+updateCacheVersionsInUrls('example/static')
 ```
 
 You can also specify a `srcMapper` that can map a url to a path in the file system in your custom way.
@@ -706,7 +706,7 @@ function srcMapper(baseFolder, requestUrl) {
   return path.join('example', 'static', ...parts)
 }
 
-updateCacheVersion('example/static', srcMapper)
+updateCacheVersionsInUrls('example/static', srcMapper)
 ```
 
 It works in combination with `cache-control`:

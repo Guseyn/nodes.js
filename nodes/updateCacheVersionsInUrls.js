@@ -15,16 +15,17 @@ async function processUrlsInHtml(content, baseFolder, srcMapper) {
     const attribute = match[2]
     let url = match[3]
 
-    const skip = url &&
+    const toBeProcessed = url &&
       !/template\s+is="e-json"/.test(tagName) &&
       tagName !== 'e-json' &&
       tagName !== 'a' &&
       !url.startsWith('http') &&
       !url.startsWith('mailto') &&
-      !url.startsWith('tel')
+      !url.startsWith('tel') &&
+      !url.startsWith('data:')
 
     // Skip if URL is external (http, mailto, etc.) or is in an <a> tag
-    if (skip) {
+    if (toBeProcessed) {
       // Use srcMapper to map URLs to actual file paths
       const filePath = pathByUrl(url, srcMapper, baseFolder)
       try {
@@ -76,7 +77,7 @@ async function getFileHash(fileStats) {
   return hash;
 }
 
-module.exports = async function updateCacheVersions(folderPath, srcMapper) {
+module.exports = async function updateCacheVersionsInUrls(folderPath, srcMapper) {
   const baseFolder = folderPath
   await processDirectory(baseFolder, folderPath, srcMapper)
 }

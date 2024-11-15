@@ -9,7 +9,7 @@ const defaultEndpointNotAllowedHandler = require('./defaultEndpointNotAllowedHan
 const pathByUrl = require('./pathByUrl')
 const streamFile = require('./streamFile')
 const corsHandler = require('./corsHandler')
-const addCorsHeaders = require('./addCorsHeaders')
+const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
 
 module.exports = async function handleRequests(app, stream, headers) {
   const requestUrl = headers[':path']
@@ -44,12 +44,13 @@ module.exports = async function handleRequests(app, stream, headers) {
 
   if (matchedEndpoint) {
     const { params, queries } = urlParamsAndQueries(matchedEndpoint.urlPattern, requestUrl)
+    const useCors = matchedEndpoint.useCors
     const allowedOrigins = matchedEndpoint.allowedOrigins
     const allowedMethods = matchedEndpoint.allowedOrigins
     const allowedHeaders = matchedEndpoint.allowedOrigins
     const allowedCredentials = matchedEndpoint.allowedOrigins
     const maxAge = matchedEndpoint.allowedOrigins
-    if (requestMethod === 'OPTIONS' && allowedOrigins) {
+    if (requestMethod === 'OPTIONS' && (useCors || allowedOrigins)) {
       corsHandler({
         stream, headers,
         allowedOrigins,
@@ -58,10 +59,14 @@ module.exports = async function handleRequests(app, stream, headers) {
         requestMethod,
       })
     } else {
-      if (allowedOrigins) {
+      if (allowedOrigins || useCors) {
         const originalStreamRespond = stream.respond
         stream.respond = function respondWithCors(headers) {
-          addCorsHeaders(headers, {
+          addCorsHeadersIfNeeded(
+            headers,
+            requestOrigin,
+            requestHost, {
+            useCors,
             allowedOrigins,
             allowedMethods,
             allowedHeaders,
@@ -109,6 +114,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                 } else {
                   const useGzip = matchedSrc.useGzip || false
                   const useCache = matchedSrc.useCache || false
+                  const useCors = matchedSrc.useCors || false
                   const cacheControl = matchedSrc.cacheControl || undefined
                   const lastModified = stats.mtime.toUTCString()
                   const allowedOrigins = matchedSrc.allowedOrigins || {}
@@ -128,6 +134,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     useCache,
                     cacheControl,
                     lastModified,
+                    useCors,
                     allowedOrigins,
                     allowedMethods,
                     allowedHeaders,
@@ -158,6 +165,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                 } else {
                   const useGzip = matchedSrc.useGzip || false
                   const useCache = matchedSrc.useCache || false
+                  const useCors = matchedSrc.useCors || false
                   const cacheControl = matchedSrc.cacheControl || false
                   const lastModified = stats.mtime.toUTCString()
                   const allowedOrigins = matchedSrc.allowedOrigins || {}
@@ -177,6 +185,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     useCache,
                     cacheControl,
                     lastModified,
+                    useCors,
                     allowedOrigins,
                     allowedMethods,
                     allowedHeaders,
@@ -198,6 +207,7 @@ module.exports = async function handleRequests(app, stream, headers) {
             stream.end()
           } else {
             const useGzip = matchedSrc.useGzip || false
+            const useCors = matchedSrc.useCors || false
             const cacheControl = matchedSrc.cacheControl || undefined
             const allowedOrigins = matchedSrc.allowedOrigins || {}
             const allowedMethods = matchedSrc.allowedMethods || []
@@ -216,6 +226,7 @@ module.exports = async function handleRequests(app, stream, headers) {
               useCache,
               cacheControl,
               lastModified,
+              useCors,
               allowedOrigins,
               allowedMethods,
               allowedHeaders,

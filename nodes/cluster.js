@@ -34,8 +34,13 @@ module.exports = function clusterRunner(primaryScript, workerScript) {
       }
 
       cluster.on('exit', (worker, code, signal) => {
-        global.log(`worker ${worker.process.pid} died (${signal || code}). restarting...`)
-        cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
+        if (signal === 'SIGINT') {
+          global.log(`worker ${worker.process.pid} died (${signal || code}). exiting...`)
+          process.exit()
+        } else {
+          global.log(`worker ${worker.process.pid} died (${signal || code}). restarting...`)
+          cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })  
+        }
       })
 
       process.on('SIGINT', () => {

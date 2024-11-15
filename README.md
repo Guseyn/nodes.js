@@ -387,6 +387,28 @@ server(
 
 Property `allowedOrigins` is the only thing you need to pass to enable CORS for `src`, other properties are optional.
 
+You can also just specify `useCors` as `true` to enable CORS with default settings, where allowed origin header is '*'.
+
+```js
+const handler = ({
+  stream, config
+}) => {
+  stream.respond({
+    status: 200,
+    'content-type': 'text/plain'
+  })
+  stream.end(`Some config value: ${config['key']}`)
+}
+
+const api = [
+  endpoint('/', 'GET', handler, { useCors: true })
+]
+
+server(
+  app({ api })
+)()
+```
+
 #### Using dependencies
 
 In your endpoint handlers, you also have an access to dependecies (`deps`). You can declare dependencies in `worker.js` and you can mutate them in your endpoints as well.
@@ -532,6 +554,25 @@ const options = {
   allowedHeaders: [ 'Content-Type', 'Authorization' ], // can also be just a string '*' (default)
   allowedCredentials: true,
   maxAge: 86400
+}
+
+const static = [
+  src(/^\/(css|js|image)/, options)
+]
+
+server(
+  app({ static })
+)()
+```
+
+You can also just specify `useCors` as `true` to enable CORS with default settings, where allowed origin header is '*'.
+
+```js
+const baseFolder = path.join('example', 'static')
+
+const options = {
+  baseFolder,
+  useCors: true
 }
 
 const static = [

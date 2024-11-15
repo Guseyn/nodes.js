@@ -7,5 +7,5 @@ module.exports = function allowedOrigin(allowedOrigins, requestOrigin, requestHo
       return requestOrigin
     }
   }
-  return requestHost
+  return null
 }

@@ -1,7 +1,10 @@
-# Release 1.0.23
+# Release 1.0.24
 
-06c2011 update version in package.json to 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
-42a990d fix ehtml logo (guseyn, Thu Nov 14 21:53:57 2024 +0400)
+80455e8 update version in package.json to 1.0.24 (guseyn, Fri Nov 15 12:45:32 2024 +0400)
+d1d4096 fix file streaming, improve cors logic + add docs on that, handle exit handle (guseyn, Fri Nov 15 12:45:27 2024 +0400)
+b6afdf7 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
+5b1fcfe update version in package.json to 1.0.23 (guseyn, Thu Nov 14 21:54:00 2024 +0400)
+0984364 fix ehtml logo (guseyn, Thu Nov 14 21:53:57 2024 +0400)
 c675e7a 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
 135b6fc update version in package.json to 1.0.22 (guseyn, Thu Nov 14 21:42:14 2024 +0400)
 91fff36 fix release (guseyn, Thu Nov 14 21:42:11 2024 +0400)

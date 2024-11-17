@@ -36,7 +36,8 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 11. [CDN Urls](#cdn-urls)
 12. [EHTML integration](#ehtml-integration)
 13. [Cache versions in Urls](#cache-versions-in-urls)
-14. [cloc (nodes folder)](#cloc-nodes-folder)
+14. [Let's encrypt integration](#lets-encrypt-integration)
+15. [cloc (nodes folder)](#cloc-nodes-folder)
 15. [Next Goals](#next-goals)
 
 
@@ -95,9 +96,9 @@ Config at least must contain following values:
 ```json
 {
   "host": "0.0.0.0",
-  "port": 8004,
-  "key": "./ssl/key.pem",
-  "cert": "./ssl/cert.pem"
+  "port": 8001,
+  "key": "./ssl/key.tmp.pem",
+  "cert": "./ssl/cert.tmp.pem"
 }
 ```
 
@@ -620,8 +621,8 @@ If you specify `<cli>` instead of values in your config, you will be asked to in
 {
   "host": "0.0.0.0",
   "port": 8004,
-  "key": "./example/ssl/key.pem",
-  "cert": "./example/ssl/cert.pem",
+  "key": "./example/ssl/key.tmp.pem",
+  "cert": "./example/ssl/cert.tmp.pem",
   "someSecret": "<cli>"
 }
 ```
@@ -730,7 +731,33 @@ server(
 )()
 ```
 
-## EHTML Integration
+## Let's encrypt integration
+
+In `docker-compose.prod.yml`, you will find a certbot service with a cron job that runs it. You must specify temporary key and cert files for the very first time to run it. In `package.json`, you can find an example of the command that runs docker compose with all env variables: `npm run example:docker:prod:start`.
+
+So, your config for production must look like:
+
+```json
+{
+  "protocol": "http",
+  "port": 443,
+  "host": "0.0.0.0",
+  "key": "./example/ssl/live/domain.com/privkey.pem",
+  "cert": "./example/ssl/live/domain.com/cert.pem",
+  "tmpKey": "./example/ssl/key.tmp.pem",
+  "tmpCert": "./example/ssl/cert.tmp.pem",
+  "webroot": "example",
+  "proxy": {
+    "port": 80
+  }
+}
+```
+
+First, `tmpKey` and `tmpCert` files will be used just to run HTTPS server with a proxy that will validate your challenge files. After that, `key` and `cert` will be used for your HTTPS server. You don't need to rerun anything, everything is mounted (`/example/ssl`) and dynamically linked via `SNICallback`. 
+
+In the config, you also must specify your web root for acme challenges in your file system.
+
+## EHTML integration
 
 ![ehtml](ehtml.svg)
 
@@ -751,3 +778,5 @@ SUM:                            30            110             21           1240
 ## Next Goals
 
 - [ ] Add admin panel
+- [ ] Figure it out interactive mode for reading secrets in `docker-compose` up command. Or come up with other way of reading secrets
+- [ ] Simple Validation For incoming requests

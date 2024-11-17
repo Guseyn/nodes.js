@@ -5,8 +5,17 @@ const crypto = require('crypto')
 const defaultSrcMapper = require('./defaultSrcMapper')
 const pathByUrl = require('./pathByUrl')
 
-async function processUrlsInHtml(content, baseFolder, srcMapper) {
-  // Regular expression to find src and href attributes in the tags
+async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
+  // Step 1: Skip code blocks enclosed by triple backticks
+  const codeBlocks = []
+  content = content.replace(/```[\s\S]*?```|`[^`]*`/g, (codeBlock) => {
+    // Save the code block in an array to avoid altering it
+    codeBlocks.push(codeBlock)
+    // Replace the code block with a placeholder
+    return `___CODE_BLOCK_${codeBlocks.length - 1}___`
+  })
+
+  // Step 2: Process URLs in HTML or Markdown
   const regex = /<(img|script|e-html|e-json|e-json|e-svg|e-markdown|template\s+is="e-json"|template\s+is="e-wrapper"|link(?:\s+rel="preload")?)\s+[^>]*(src|href|data-src)="([^"]+)"/g
   let match
   
@@ -42,6 +51,11 @@ async function processUrlsInHtml(content, baseFolder, srcMapper) {
     }
   }
 
+  // Step 3: Restore the skipped code blocks
+  codeBlocks.forEach((codeBlock, index) => {
+    content = content.replace(`___CODE_BLOCK_${index}___`, codeBlock)
+  })
+
   return content
 }
 
@@ -54,7 +68,7 @@ async function processDirectory(baseFolder, folderPath, srcMapper) {
     let content = await fs.readFile(filePath, 'utf-8')
     
     // Process URLs and version them as needed
-    content = await processUrlsInHtml(content, baseFolder, srcMapper)
+    content = await processUrlsInHtmlOrMd(content, baseFolder, srcMapper)
 
     // Write the updated content back to the file
     await fs.writeFile(filePath, content, 'utf-8')

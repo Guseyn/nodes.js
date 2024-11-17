@@ -27,7 +27,7 @@ module.exports = function addCorsHeadersIfNeeded(
     } else if (useCors) {
       responseHeaders['access-control-allow-methods'] = 'GET,OPTIONS'
     }
-    if (allowedHeaders && allowedMethods.length > 0) {
+    if (allowedHeaders && allowedHeaders.length > 0) {
       responseHeaders['access-control-allow-headers'] = allowedHeaders.join(', ')
     } else if (useCors) {
       responseHeaders['access-control-allow-headers'] = '*'

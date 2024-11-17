@@ -17,7 +17,16 @@ async function removeCdnUrlsFromHtml(htmlContent, cdnBaseUrl) {
 }
 
 async function removeCdnUrlsFromMarkdown(mdContent, cdnBaseUrl) {
-  // Step 1: Adjust relative paths in Markdown links and images
+  // Step 1: Skip code blocks enclosed by triple backticks and inline code enclosed by single backticks
+  const codeBlocks = []
+  mdContent = mdContent.replace(/```[\s\S]*?```|`[^`]*`/g, (codeBlock) => {
+    // Save the code block in an array to avoid altering it
+    codeBlocks.push(codeBlock)
+    // Replace the code block with a placeholder
+    return `___CODE_BLOCK_${codeBlocks.length - 1}___`
+  })
+
+  // Step 2: Adjust relative paths in Markdown links and images
   mdContent = mdContent.replace(/(!?\[.*?\])(\(https?:\/\/[^)]+?\))/g, (match, altText, fullUrl) => {
     if (fullUrl.startsWith(cdnBaseUrl)) {
       const relativePath = fullUrl.replace(cdnBaseUrl, '')
@@ -26,7 +35,7 @@ async function removeCdnUrlsFromMarkdown(mdContent, cdnBaseUrl) {
     return match // No change for non-CDN URLs
   })
 
-  // Step 2: Adjust relative paths in HTML tags within the Markdown content
+  // Step 3: Adjust relative paths in HTML tags within the Markdown content
   mdContent = mdContent.replace(/<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g, (match, tagName, attributes) => {
     attributes = attributes.replace(/(href|src|data-src)="(https?:\/\/[^"]+)"/g, (attrMatch, attribute, fullUrl) => {
       if (fullUrl.startsWith(cdnBaseUrl)) {
@@ -37,6 +46,11 @@ async function removeCdnUrlsFromMarkdown(mdContent, cdnBaseUrl) {
     })
 
     return `<${tagName}${attributes}>`
+  })
+
+  // Step 4: Restore the skipped code blocks
+  codeBlocks.forEach((codeBlock, index) => {
+    mdContent = mdContent.replace(`___CODE_BLOCK_${index}___`, codeBlock)
   })
 
   return mdContent

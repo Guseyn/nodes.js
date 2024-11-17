@@ -1,6 +1,6 @@
 {
 	"host": "0.0.0.0",
 	"port": 8004,
-	"key": "./example/ssl/key.pem",
-	"cert": "./example/ssl/cert.pem"
+	"key": "./example/ssl/key.tmp.pem",
+	"cert": "./example/ssl/cert.tmp.pem"
 }

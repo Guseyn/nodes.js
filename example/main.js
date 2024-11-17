@@ -11,7 +11,7 @@ const config = JSON.parse(
     `./example/env/${process.env.ENV}.json`
   )
 )
-let logFile = './output.log'
+let logFile
 if (process.env.ENV === 'prod') {
   logFile = './output.log'
 }

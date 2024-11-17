@@ -10,22 +10,54 @@ const readSecrets = require('./readSecrets')
 
 const proxyServer = require('./proxyServer')
 
+const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
+
 module.exports = function server(app) {
-  global.config.key = global.config.key || 'key.pem'
-  global.config.cert = global.config.cert || 'cert.pem'
+
+  const certAndKeyExists = fs.existsSync(global.config.cert) &&
+    fs.existsSync(global.config.key) &&
+    fs.statSync(global.config.cert).size !== 0 &&
+    fs.statSync(global.config.key).size !== 0
+  const keyFile = certAndKeyExists ? global.config.key : global.config.tmpKey
+  const certFile = certAndKeyExists ? global.config.cert : global.config.tmpCert
+  
   global.config.host = global.config.host || 'localhost'
   global.config.port = global.config.port || 8004
 
   const server = http2.createSecureServer({
-    key: fs.readFileSync(global.config.key),
-    cert: fs.readFileSync(global.config.cert),
+    key: fs.readFileSync(keyFile),
+    cert: fs.readFileSync(certFile),
     SNICallback: (servername, callback) => {
+
+      const certAndKeyExists = fs.existsSync(global.config.cert) &&
+        fs.existsSync(global.config.key) &&
+        fs.statSync(global.config.cert).size !== 0 &&
+        fs.statSync(global.config.key).size !== 0
+
+      const keyFile = certAndKeyExists ? global.config.key : global.config.tmpKey
+      const certFile = certAndKeyExists ? global.config.cert : global.config.tmpCert
       const ctx = tls.createSecureContext({
-        key: fs.readFileSync(global.config.key),
-        cert: fs.readFileSync(global.config.cert)
+        key: fs.readFileSync(keyFile),
+        cert: fs.readFileSync(certFile)
       })
       callback(null, ctx)
+    },
+    allowHTTP1: true
+  }, (req, res) => {
+    if (req.httpVersion === '2.0') {
+      // we can go to server.on('stream') event
+      return
     }
+    const stream = emulateStreamForHttp1(req, res)
+    constructDomain(server, stream).run(async () => {
+      app.config = global.config
+      await handleRequests(app, stream, stream.headers)
+    })
+    // res.writeHead(426, {
+    //   'upgrade': 'HTTP/2.0',
+    //   'content-type': 'text/plain'
+    // })
+    // res.end('Please upgrade to HTTP/2')
   })
 
   server.on('stream', (stream, headers) => {
@@ -49,7 +81,10 @@ module.exports = function server(app) {
   })
   
   return function serverListener() {
-    server.listen(global.config.port, global.config.host, () => {
+    server.listen({
+      host: global.config.host,
+      port: global.config.port
+    }, () => {
       global.log(`HTTP/2 server running at https://${global.config.host}:${global.config.port}`)
     })
     if (process.env.ENV) {
@@ -58,10 +93,12 @@ module.exports = function server(app) {
         throw new Error('In prod environment you must specifiy a port for HTTP proxy server in cofing with key: `proxy: { port: <value> }`')
       }
       if (itIsProd) {
-        proxyServer(
-          global.config.host,
-          global.config.proxy.port
-        )()
+        proxyServer({
+          proxyPort: global.config.proxy.port,
+          host: global.config.host,
+          port: global.config.port,
+          webroot: global.config.webroot
+        })()
       }
     }
   }

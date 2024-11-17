@@ -1,4 +1,5 @@
 module.exports = function endpoint(urlPattern, method, handler, {
+  useCors,
   allowedOrigins,
   allowedMethods,
   allowedHeaders,

@@ -8,6 +8,6 @@ const path = require('path')
 
 // global.log(`\x1b[33m${txtLogo}\n\nversion: ${version}, environment: ${environment}\x1b[0m`)
 
-const updateCacheVersions = require('./../nodes/updateCacheVersions')
+const updateCacheVersionsInUrls = require('./../nodes/updateCacheVersionsInUrls')
 
-updateCacheVersions(path.join('example', 'static'))
+updateCacheVersionsInUrls(path.join('example', 'static'))

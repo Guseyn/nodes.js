@@ -1,9 +1,12 @@
 {
 	"host": "0.0.0.0",
-	"port": 8004,
-	"key": "./example/ssl/key.pem",
-	"cert": "./example/ssl/cert.pem",
+	"port": 443,
+  "key": "./example/ssl/live/guseyn.com/privkey.pem",
+  "cert": "./example/ssl/live/guseyn.com/cert.pem",
+  "tmpKey": "./example/ssl/key.tmp.pem",
+  "tmpCert": "./example/ssl/cert.tmp.pem",
+  "webroot": "example",
 	"proxy": {
-		"port": 8005
+		"port": 80
 	}
  }

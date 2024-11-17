@@ -6,16 +6,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nodes-app
+    container_name: ${DOMAIN}
     volumes:
       - ./output.log:/app/output.log
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
       - ./nodes:/app/nodes
-      - ./example:/app/example
-      - ./example/.well-known/acme-challenge:/app/.well-known/acme-challenge  # Mount ACME challenge folder
-      - ./example/ssl:/app/example/ssl  # Mount folder for SSL certs inside app/example/ssl
+      - ./web-app:/app/web-app
+      - ./web-app/.well-known/acme-challenge:/app/web-app/.well-known/acme-challenge  # Mount ACME challenge folder
+      - ./web-app/ssl:/app/web-app/ssl  # Mount folder for SSL certs inside app/${DOMAIN}/ssl
     ports:
-      - "8004:443"  # Prime HTTP(S)/2 
-      - "8005:80"   # Proxy
+      - "443:443"  # Prime HTTP(S)/2 
+      - "80:80"    # Proxy
     networks:
       - app-network
     # Override CMD in Dockerfile with my ENV variable
@@ -27,11 +29,41 @@ services:
     depends_on:
       - app
     volumes:
-      - ./example/.well-known/acme-challenge:/app/.well-known/acme-challenge  # ACME challenge folder
-      - ./example/ssl:/etc/letsencrypt  # Mount SSL cert folder
-    command: certonly --webroot --webroot-path=/app/.well-known/acme-challenge --email ${DOMAIN_EMAIL} --agree-tos --no-eff-email --staging -d ${DOMAIN}  # Replace with your domain
+      - ./web-app/.well-known/acme-challenge:/var/www/html/.well-known/acme-challenge  # ACME challenge folder
+      - ./web-app/ssl:/etc/letsencrypt # Mount SSL keys
+    environment:
+      - CERTBOT_MODE=${CERTBOT_MODE:-generate} # Mode: 'generate' or 'renew'
+    entrypoint: >
+      sh -c "
+      if [ \"$CERTBOT_MODE\" = \"generate\" ]; then
+        certbot certonly \
+          --non-interactive \
+          --webroot \
+          --webroot-path /var/www/html \
+          --email ${DOMAIN_EMAIL} \
+          --agree-tos \
+          -d ${DOMAIN},www.${DOMAIN} \
+          --debug --verbose;
+      elif [ \"$CERTBOT_MODE\" = \"renew\" ]; then
+        certbot renew --quiet;
+      else
+        echo 'Invalid CERTBOT_MODE specified. Use generate or renew.';
+        exit 1;
+      fi"
     networks:
       - app-network
+
+  cron:
+    image: bash:latest
+    container_name: certbot-cron
+    depends_on:
+      - certbot
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    command: >
+      sh -c "
+      echo '0 0 * * * docker-compose run --rm certbot CERTBOT_MODE=renew' > /etc/crontab &&
+      crond -f"
 
 networks:
   app-network:

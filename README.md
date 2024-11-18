@@ -791,3 +791,4 @@ SUM:                            32            148             51           1477
 - [ ] Simple Validation For incoming requests
 - [ ] JWT auth out of box
 - [ ] Introduce Merchant of Record
+- [ ] SQLite out of box with user management

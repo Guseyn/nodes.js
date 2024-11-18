@@ -787,7 +787,7 @@ SUM:                            32            148             51           1477
   - [ ] Cluster Monitoring
   - [ ] Rerun button
   - [ ] Pull button
-- [ ] Figure it out interactive mode for reading secrets in `docker-compose` up command. Or come up with other way of reading secrets
+- [ ] Add secrets reader from the secret file
 - [ ] Simple Validation For incoming requests
 - [ ] JWT auth out of box
 - [ ] Introduce Merchant of Record

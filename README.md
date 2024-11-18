@@ -1,6 +1,6 @@
 ![nodes.js](logo.svg)
 
-**1.0.26**
+**1.0.29**
 
 [![nodes.js CI](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.yml/badge.svg?branch=main)](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.yml)
 
@@ -9,12 +9,12 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 # Table of Contents
 
 1. [Why do we need another framework for Node.js?](#why-do-we-need-another-framework-for-nodejs)
-2. [How it works](#how-it-works)
-3. [Setting up main.js](#setting-up-mainjs)
+1. [How it works](#how-it-works)
+1. [Setting up main.js](#setting-up-mainjs)
    - [Configuration](#configuration)
    - [Log File](#log-file)
-4. [Setting up primary.js](#setting-up-primaryjs)
-5. [Setting up worker.js](#setting-up-workerjs)
+1. [Setting up primary.js](#setting-up-primaryjs)
+1. [Setting up worker.js](#setting-up-workerjs)
    - [Index file](#index-file)
    - [API](#api)
      - [Using headers](#using-headers)
@@ -24,21 +24,22 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
      - [Using config](#using-config)
      - [Enabling CORS](#enabling-cors)
      - [Using Dependencies](#using-dependencies)
-6. [Static files](#static-files)
+1. [Static files](#static-files)
    - [ETag caching](#etag-caching)
    - [Cache control](#cache-control)
    - [Enabling CORS](#enabling-cors-1)
    - [Setting up `fileNotFound`, `fileNotAccessible`](#setting-up-filenotfound-filenotaccessible)
-7. [Setting up restart.js](#setting-up-restartjs)
-8. [Reading secrets from terminal](#reading-secrets-from-terminal)
-9. [Running example](#running-example)
-10. [Docker](#docker)
-11. [CDN Urls](#cdn-urls)
-12. [EHTML integration](#ehtml-integration)
-13. [Cache versions in Urls](#cache-versions-in-urls)
-14. [Let's encrypt integration](#lets-encrypt-integration)
-15. [cloc (nodes folder)](#cloc-nodes-folder)
-15. [Next Goals](#next-goals)
+1. [Setting up restart.js](#setting-up-restartjs)
+1. [Reading secrets from terminal](#reading-secrets-from-terminal)
+1. [Running example](#running-example)
+1. [Docker](#docker)
+1. [CDN Urls](#cdn-urls)
+1. [EHTML integration](#ehtml-integration)
+1. [Cache versions in Urls](#cache-versions-in-urls)
+1. [Let's encrypt integration](#lets-encrypt-integration)
+1. [Real Production Example](#real-production-example)
+1. [cloc (nodes folder)](#cloc-nodes-folder)
+1. [Next Goals](#next-goals)
 
 
 ## Why do we need another framework for Node.js?
@@ -731,7 +732,7 @@ server(
 )()
 ```
 
-## Let's encrypt integration
+## Let's Encrypt integration
 
 In `docker-compose.prod.yml`, you will find a certbot service with a cron job that runs it. You must specify temporary key and cert files for the very first time to run it. In `package.json`, you can find an example of the command that runs docker compose with all env variables: `npm run example:docker:prod:start`.
 
@@ -753,7 +754,7 @@ So, your config for production must look like:
 }
 ```
 
-First, `tmpKey` and `tmpCert` files will be used just to run HTTPS server with a proxy that will validate your challenge files. After that, `key` and `cert` will be used for your HTTPS server. You don't need to rerun anything, everything is mounted (`/example/ssl`) and dynamically linked via `SNICallback`. 
+First, `tmpKey` and `tmpCert` files will be used just to run HTTPS server with a proxy that will validate your challenge files. You can generate them via `openssl` command for example. After that, `key` and `cert` will be used for your HTTPS server. You don't need to rerun anything, everything is mounted (`/example/ssl`) and dynamically linked via `SNICallback`. 
 
 In the config, you also must specify your web root for acme challenges in your file system.
 
@@ -763,15 +764,19 @@ In the config, you also must specify your web root for acme challenges in your f
 
 This framework is perfect in combination with [ETHML](https://e-html.org). CDN and cache versions also work with such elements as `e-html`, `e-svg`, `e-markdown`.
 
+## Real Production Example
+
+[guseyn.com](https://guseyn.com/). Repository: https://github.com/Guseyn/guseyn.com
+
 ## cloc (nodes folder)
 
 ```bash
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-JavaScript                      30            110             21           1240
+JavaScript                      32            148             51           1477
 -------------------------------------------------------------------------------
-SUM:                            30            110             21           1240
+SUM:                            32            148             51           1477
 -------------------------------------------------------------------------------
 ```
 

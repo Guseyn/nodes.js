@@ -1,6 +1,6 @@
 ![nodes.js](logo.svg)
 
-**1.0.29**
+**1.0.33**
 
 [![nodes.js CI](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.ci.yml/badge.svg?branch=main)](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.ci.yml)
 

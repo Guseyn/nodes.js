@@ -1,7 +1,17 @@
-# Release 1.0.29
+# Release 1.0.30
 
-35bcc12 update version in package.json to 1.0.29 (guseyn, Mon Nov 18 00:57:00 2024 +0400)
-568bae9 let's encrypt + add emulation of a stream object for http1 (guseyn, Mon Nov 18 00:56:57 2024 +0400)
+522f008 update version in package.json to 1.0.30 (guseyn, Thu Nov 21 17:26:52 2024 +0400)
+71ec736 fix and improve cors headers (guseyn, Thu Nov 21 17:26:46 2024 +0400)
+0809d27 add scp for secrets (guseyn, Mon Nov 18 21:43:52 2024 +0400)
+81611c2 Update README.md (Guseyn Ismayylov, Mon Nov 18 20:35:37 2024 +0400)
+da714c5 Update README.md (Guseyn Ismayylov, Mon Nov 18 20:33:29 2024 +0400)
+b0034cd fix release yml files (guseyn, Mon Nov 18 18:54:55 2024 +0400)
+b6a5a4b ci and release workflows (guseyn, Mon Nov 18 18:53:04 2024 +0400)
+1a5d74a ci and release workflows (guseyn, Mon Nov 18 18:52:04 2024 +0400)
+cda8148 update readme (guseyn, Mon Nov 18 13:44:06 2024 +0400)
+8ec2652 1.0.29 (guseyn, Mon Nov 18 00:57:00 2024 +0400)
+3e187a9 update version in package.json to 1.0.29 (guseyn, Mon Nov 18 00:57:00 2024 +0400)
+3240303 let's encrypt + add emulation of a stream object for http1 (guseyn, Mon Nov 18 00:56:57 2024 +0400)
 ab1fd83 updat (guseyn, Fri Nov 15 19:53:53 2024 +0400)
 3c0ac36 1.0.28 (guseyn, Fri Nov 15 18:05:41 2024 +0400)
 a8a56fd update version in package.json to 1.0.28 (guseyn, Fri Nov 15 18:05:41 2024 +0400)

@@ -1,23 +1,35 @@
-name: nodes.js Rlease
+name: Node.js Release
 
 permissions:
   contents: write
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allow manual triggering of the workflow
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch all commits
+        run: git fetch --depth=100
+
+      - name: Get the latest commit message
+        id: get_commit_message
+        run: |
+          TAG=$(git log -1 --pretty=format:"%s")
+          echo "TAG=$TAG" >> $GITHUB_ENV
+        # This extracts the latest commit message and stores it as TAG in GitHub environment variables
+
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.head_commit.message }}
-          release_name: ${{ github.event.head_commit.message }}
+          tag_name: ${{ env.TAG }} # Use the commit message as the tag
+          release_name: Release ${{ env.TAG }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false

@@ -1,7 +1,11 @@
-# Release 1.0.30
+# Release 1.0.31
 
-522f008 update version in package.json to 1.0.30 (guseyn, Thu Nov 21 17:26:52 2024 +0400)
-71ec736 fix and improve cors headers (guseyn, Thu Nov 21 17:26:46 2024 +0400)
+34e5e4a update version in package.json to 1.0.31 (guseyn, Thu Nov 21 17:31:05 2024 +0400)
+fe4205d fix release flow (guseyn, Thu Nov 21 17:31:03 2024 +0400)
+82d971e update (guseyn, Thu Nov 21 17:28:43 2024 +0400)
+df2107f 1.0.30 (guseyn, Thu Nov 21 17:26:52 2024 +0400)
+9eaf751 update version in package.json to 1.0.30 (guseyn, Thu Nov 21 17:26:52 2024 +0400)
+b0ff75e fix and improve cors headers (guseyn, Thu Nov 21 17:26:46 2024 +0400)
 0809d27 add scp for secrets (guseyn, Mon Nov 18 21:43:52 2024 +0400)
 81611c2 Update README.md (Guseyn Ismayylov, Mon Nov 18 20:35:37 2024 +0400)
 da714c5 Update README.md (Guseyn Ismayylov, Mon Nov 18 20:33:29 2024 +0400)

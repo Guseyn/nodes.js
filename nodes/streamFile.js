@@ -10,8 +10,7 @@ module.exports = function streamFile(
   file,
   stream,
   requestMethod,
-  requestOrigin,
-  requestHost,
+  requestAuthority,
   stats,
   status,
   useGzip,
@@ -44,8 +43,7 @@ module.exports = function streamFile(
   }
   addCorsHeadersIfNeeded(
     responseHeaders,
-    requestOrigin,
-    requestHost, {
+    requestAuthority, {
     useCors,
     allowedOrigins,
     allowedMethods,

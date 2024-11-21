@@ -1,38 +1,25 @@
-const allowedOrigin = require('./allowedOrigin')
+const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
 
 module.exports = function corsHandler({
-  stream, headers,
+  stream, headers, useCors,
   allowedOrigins,
   allowedMethods,
   allowedHeaders,
   allowedCredentials,
   maxAge,
-  requestOrigin,
-  requestHost,
-  requestMethod,
+  requestAuthority
 }) {
-  const responseHeaders = {
-    'access-control-allow-origin': allowedOrigin(
-      allowedOrigins, requestOrigin, requestHost
-    ),
-    ':status': 204
-  }
-  if (allowedMethods) {
-    responseHeaders['access-control-allow-methods'] = allowedMethods.join(',')
-  } else {
-    responseHeaders['access-control-allow-methods'] = 'GET,OPTIONS'
-  }
-  if (allowedHeaders) {
-    responseHeaders['access-control-allow-headers'] = allowedHeaders.join(',')
-  } else {
-    responseHeaders['access-control-allow-headers'] = '*'
-  }
-  if (allowedCredentials) {
-    responseHeaders['access-control-allow-credentials'] = true
-  }
-  if (maxAge) {
-    responseHeaders['access-control-max-age'] = maxAge
-  }
-  stream.respond(responseHeaders)
+  addCorsHeadersIfNeeded(
+    headers,
+    requestAuthority, {
+    useCors,
+    allowedOrigins,
+    allowedMethods,
+    allowedHeaders,
+    allowedCredentials,
+    maxAge
+  })
+  headers['x-authority', requestAuthority]
+  stream.respond(headers)
   stream.end()
 }

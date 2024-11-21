@@ -2,8 +2,7 @@ const allowedOrigin = require('./allowedOrigin')
 
 module.exports = function addCorsHeadersIfNeeded(
   responseHeaders,
-  requestOrigin,
-  requestHost, {
+  requestAuthority, {
   useCors,
   allowedOrigins,
   allowedMethods,
@@ -14,8 +13,7 @@ module.exports = function addCorsHeadersIfNeeded(
   if (useCors || allowedOrigins) {
     const determinedAllowedOrigin = allowedOrigin(
       allowedOrigins,
-      requestOrigin,
-      requestHost
+      requestAuthority
     )
     if (determinedAllowedOrigin) {
       responseHeaders['access-control-allow-origin'] = determinedAllowedOrigin

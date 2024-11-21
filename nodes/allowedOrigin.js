@@ -1,10 +1,10 @@
-module.exports = function allowedOrigin(allowedOrigins, requestOrigin, requestHost) {
+module.exports = function allowedOrigin(allowedOrigins, requestAuthority) {
   if (allowedOrigins === '*') {
     return '*'
   }
-  if (requestOrigin) {
-    if (allowedOrigins.indexOf(requestOrigin) !== -1) {
-      return requestOrigin
+  if (requestAuthority) {
+    if (allowedOrigins.indexOf(requestAuthority) !== -1) {
+      return `https://${requestAuthority}`
     }
   }
   return null

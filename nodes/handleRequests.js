@@ -14,8 +14,7 @@ const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
 module.exports = async function handleRequests(app, stream, headers) {
   const requestUrl = headers[':path']
   const requestMethod = headers[':method']
-  const requestOrigin = headers['origin']
-  const requestHost = headers['host']
+  const requestAuthority = headers[':authority']
 
   const allEndpointsInApp = app.api || []
   const allSrcInApp = app.static || []
@@ -29,8 +28,7 @@ module.exports = async function handleRequests(app, stream, headers) {
         app.indexFile,
         stream,
         requestMethod,
-        requestOrigin,
-        requestHost,
+        requestAuthority,
         stats,
         200
       )
@@ -52,10 +50,9 @@ module.exports = async function handleRequests(app, stream, headers) {
     const maxAge = matchedEndpoint.allowedOrigins
     if (requestMethod === 'OPTIONS' && (useCors || allowedOrigins)) {
       corsHandler({
-        stream, headers,
+        stream, headers, useCors,
         allowedOrigins,
-        requestOrigin,
-        requestHost,
+        requestAuthority,
         requestMethod,
       })
     } else {
@@ -64,8 +61,7 @@ module.exports = async function handleRequests(app, stream, headers) {
         stream.respond = function respondWithCors(headers) {
           addCorsHeadersIfNeeded(
             headers,
-            requestOrigin,
-            requestHost, {
+            requestAuthority, {
             useCors,
             allowedOrigins,
             allowedMethods,
@@ -126,8 +122,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     fileNotFound,
                     stream,
                     requestMethod,
-                    requestOrigin,
-                    requestHost,
+                    requestAuthority,
                     stats,
                     404,
                     useGzip,
@@ -177,8 +172,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     fileNotAccessible,
                     stream,
                     requestMethod,
-                    requestOrigin,
-                    requestHost,
+                    requestAuthority,
                     stats,
                     403,
                     useGzip,
@@ -218,8 +212,7 @@ module.exports = async function handleRequests(app, stream, headers) {
               resolvedFilePath,
               stream,
               requestMethod,
-              requestOrigin,
-              requestHost,
+              requestAuthority,
               stats,
               200,
               useGzip,

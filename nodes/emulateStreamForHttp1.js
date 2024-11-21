@@ -34,6 +34,7 @@ module.exports = function emulateStreamForHttp1(req, res) {
   // Just to avoid confusion in unified API, let's delete HTTP/1 specific headers
   delete headers['connection']
   delete headers['host']
+  delete headers['origin']
   delete headers['upgrade']
   delete headers['keep-alive']
   delete headers['proxy-connection']
@@ -43,10 +44,10 @@ module.exports = function emulateStreamForHttp1(req, res) {
   stream.headers = headers
   stream.respond = (responseHeaders) => {
     const status = responseHeaders[':status'] || 200
+    responseHeaders['x-authority'] = headers[':authority']
     delete responseHeaders[':status']
     delete responseHeaders[':method']
     delete responseHeaders[':path']
-    delete responseHeaders[':authority']
     delete responseHeaders[':scheme']
     responseHeaders['x-handled-by-http1-stream-emulation'] = true
     res.writeHead(status, responseHeaders)

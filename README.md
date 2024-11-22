@@ -277,7 +277,7 @@ const body = require('./../nodes/body')
 const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
     const reqBody = JSON.parse(
-      await body(stream).toString('utf-8')
+      (await body(stream)).toString('utf-8')
     )
     stream.respond({
       status: 200,
@@ -304,9 +304,9 @@ const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
     try {
       const reqBody = JSON.parse(
-        await body(stream, {
+        (await body(stream, {
           maxSize: 1
-        }).toString('utf-8')
+        })).toString('utf-8')
       )
       stream.respond({
         status: 200,

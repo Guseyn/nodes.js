@@ -7,7 +7,24 @@ const readSecrets = require('./readSecrets')
 const setupFileLogging = require('./setupFileLogging')
 const disconnectAndExitAllWorkersWithTimeoutRecursively = require('./disconnectAndExitAllWorkersWithTimeoutRecursively')
 
+/**
+ * Creates and manages a cluster of worker processes.
+ *
+ * @param {string} primaryScript - The relative path to the primary script to be executed by the master process.
+ * @param {string} workerScript - The relative path to the worker script to be executed by worker processes.
+ * @returns {Function} A function that initializes the cluster and manages worker processes.
+ */
 module.exports = function clusterRunner(primaryScript, workerScript) {
+  /**
+   * Initializes the cluster, sets up workers, and manages their lifecycle.
+   *
+   * @param {Object} options - The configuration options for the cluster.
+   * @param {number} [options.numberOfWorkers=os.cpus().length] - The number of worker processes to spawn. Defaults to the number of CPU cores.
+   * @param {number} options.restartTime - The timeout (in milliseconds) before restarting workers after a graceful shutdown.
+   * @param {Object} options.config - Configuration object to be passed to workers and the primary process.
+   * @param {string} [options.logFile] - The path to the log file for storing logs. If undefined, logs are sent to the console.
+   * @returns {Promise<void>} A promise that resolves when the cluster is fully initialized.
+   */
   return async ({
     numberOfWorkers,
     restartTime,

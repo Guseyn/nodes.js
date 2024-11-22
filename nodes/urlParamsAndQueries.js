@@ -1,3 +1,29 @@
+/**
+ * Extracts parameters and query values from a URL based on a specified pattern.
+ *
+ * @param {string|RegExp} pattern - The URL pattern to match. If it's a string, it may include parameter placeholders (e.g., `:id`).
+ * @param {string} url - The actual URL to extract parameters and queries from.
+ * @returns {Object} An object containing `params` and `queries` extracted from the URL.
+ * @property {Object} params - An object mapping parameter names to their values.
+ * @property {Object} queries - An object mapping query keys to their values.
+ *
+ * @description
+ * This function parses a URL based on a given pattern and extracts:
+ * - Path parameters: Identified by `:` in the pattern (e.g., `/user/:id`).
+ * - Query values: Based on matching keys in the query string.
+ *
+ * ### Example Usage
+ * ```javascript
+ * const urlParamsAndQueries = require('./urlParamsAndQueries');
+ *
+ * const pattern = '/user/:id?name';
+ * const url = '/user/123?name=John';
+ *
+ * const { params, queries } = urlParamsAndQueries(pattern, url);
+ * console.log(params); // { id: '123' }
+ * console.log(queries); // { name: 'John' }
+ * ```
+ */
 module.exports = function urlParamsAndQueries(pattern, url) {
   const params = {}
   const queries = {}

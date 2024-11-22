@@ -4,6 +4,7 @@
   "description": "Procedural Web Framework",
   "scripts": {
     "lint": "npx eslint",
+    "docs": "npx jsdoc -c jsdoc.conf.json",
     "example:start": "node example/main.js",
     "example:restart": "node example/restart.js",
     "example:local:start": "ENV=local npm run example:start",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "eslint": "^8.30.0",
     "eslint-plugin-node": "^11.1.0",
+    "jsdoc": "^4.0.4",
     "nyc": "^15.1.0"
   }
 }

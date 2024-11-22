@@ -11,6 +11,21 @@ const streamFile = require('./streamFile')
 const corsHandler = require('./corsHandler')
 const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
 
+/**
+ * Handles incoming HTTP/2 or HTTP/1.x requests by matching endpoints or static resources.
+ *
+ * @param {Object} app - The application configuration object.
+ * @param {Object} stream - The HTTP/2 or HTTP/1.x stream object associated with the request.
+ * @param {Object} headers - The headers object of the incoming request.
+ * @returns {Promise<void>} A promise that resolves when the request is fully handled.
+ *
+ * @description
+ * This function processes incoming requests by:
+ * 1. Checking if the request matches a defined API endpoint.
+ * 2. Serving static resources if a match is found.
+ * 3. Responding with appropriate error handlers for not found or inaccessible resources.
+ * 4. Applying CORS headers if specified in the endpoint or static resource configuration.
+ */
 module.exports = async function handleRequests(app, stream, headers) {
   const requestUrl = headers[':path']
   const requestMethod = headers[':method']

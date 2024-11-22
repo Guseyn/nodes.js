@@ -1,6 +1,13 @@
 const fs = require('fs').promises // Use fs.promises for async/await
 const path = require('path')
 
+/**
+ * Adjusts paths in HTML content by prepending a CDN base URL to relative paths.
+ *
+ * @param {string} htmlContent - The content of the HTML file.
+ * @param {string} cdnBaseUrl - The base URL of the CDN to prepend to relative paths.
+ * @returns {Promise<string>} The updated HTML content with adjusted paths.
+ */
 async function adjustPathsInHTML(htmlContent, cdnBaseUrl) {
   const tagRegex = /<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g
 
@@ -28,6 +35,13 @@ async function adjustPathsInHTML(htmlContent, cdnBaseUrl) {
   })
 }
 
+/**
+ * Adjusts paths in Markdown content by prepending a CDN base URL to relative paths.
+ *
+ * @param {string} mdContent - The content of the Markdown file.
+ * @param {string} cdnBaseUrl - The base URL of the CDN to prepend to relative paths.
+ * @returns {Promise<string>} The updated Markdown content with adjusted paths.
+ */
 async function adjustPathsInMarkdown(mdContent, cdnBaseUrl) {
   // Step 1: Skip code blocks enclosed by triple backticks
   const codeBlocks = []
@@ -76,6 +90,13 @@ async function adjustPathsInMarkdown(mdContent, cdnBaseUrl) {
   return mdContent
 }
 
+/**
+ * Recursively processes a directory, adjusting CDN URLs in HTML and Markdown files.
+ *
+ * @param {string} dirPath - The path to the directory to process.
+ * @param {string} cdnBaseUrl - The base URL of the CDN to prepend to relative paths.
+ * @returns {Promise<void>} Resolves when all files are processed.
+ */
 async function addCdnToUrsl(dirPath, cdnBaseUrl) {
   try {
     // Read all files and directories in the given directory

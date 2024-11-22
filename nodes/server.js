@@ -12,6 +12,17 @@ const proxyServer = require('./proxyServer')
 
 const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
 
+/**
+ * Creates and configures an HTTP/2 server with optional HTTP/1.1 support and proxy setup.
+ *
+ * @param {Object} app - The application configuration object.
+ * @returns {Function} A function to start the server listener.
+ *
+ * @description
+ * This function sets up an HTTP/2 server with SSL/TLS support, optional HTTP/1.1 compatibility,
+ * and dynamic configuration for certificates. It handles incoming requests with a unified request
+ * handler and domain-based error isolation. It also supports a fallback proxy server for production environments.
+ */
 module.exports = function server(app) {
 
   const certAndKeyExists = fs.existsSync(global.config.cert) &&

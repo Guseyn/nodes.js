@@ -5,6 +5,14 @@ const crypto = require('crypto')
 const defaultSrcMapper = require('./defaultSrcMapper')
 const pathByUrl = require('./pathByUrl')
 
+/**
+ * Processes URLs in HTML or Markdown content, appending a version query parameter based on the file's hash.
+ *
+ * @param {string} content - The content of an HTML or Markdown file.
+ * @param {string} baseFolder - The base folder for resolving file paths.
+ * @param {Function} srcMapper - A function to map URLs to file paths.
+ * @returns {Promise<string>} A promise that resolves to the updated content with versioned URLs.
+ */
 async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   // Step 1: Skip code blocks enclosed by triple backticks
   const codeBlocks = []

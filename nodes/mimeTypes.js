@@ -1,3 +1,11 @@
+/**
+ * Mapping of file extensions to their MIME types.
+ *
+ * @description
+ * This object provides a comprehensive mapping of file extensions to MIME types. It is useful
+ * for determining the appropriate `Content-Type` header for HTTP responses or processing files
+ * based on their types.
+ */
 module.exports = {
   evy: 'application/envoy',
   fif: 'application/fractals',

@@ -4,6 +4,22 @@ const fs = require('fs')
 
 const acmeChallengeUrlPattern = /^\/\.well-known\/acme-challenge/
 
+/**
+ * Creates an HTTP proxy server that handles ACME challenges and redirects other traffic to HTTPS.
+ *
+ * @param {Object} options - Configuration options for the proxy server.
+ * @param {number} options.proxyPort - The port on which the proxy server will listen.
+ * @param {string} options.host - The hostname or IP address for the proxy server.
+ * @param {number} options.port - The port for redirecting traffic to HTTPS.
+ * @param {string} options.webroot - The root directory for serving ACME challenge files.
+ * @returns {Function} A function that starts the proxy server.
+ *
+ * @description
+ * This proxy server performs two primary functions:
+ * 1. Handles ACME challenge requests for HTTPS certificate validation. The ACME challenge files
+ *    are served from the specified `webroot`.
+ * 2. Redirects all other HTTP traffic to the HTTPS endpoint on the specified port.
+ */
 module.exports = function proxyServer({
   proxyPort,
   host,

@@ -1,4 +1,32 @@
-const fs = require('fs').promises
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: updateCacheVersionsInUrls.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: updateCacheVersionsInUrls.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs').promises
 const path = require('path')
 const crypto = require('crypto')
 
@@ -11,7 +39,7 @@ const pathByUrl = require('./pathByUrl')
  * @param {string} content - The content of an HTML or Markdown file.
  * @param {string} baseFolder - The base folder for resolving file paths.
  * @param {Function} srcMapper - A function to map URLs to file paths.
- * @returns {Promise<string>} A promise that resolves to the updated content with versioned URLs.
+ * @returns {Promise&lt;string>} A promise that resolves to the updated content with versioned URLs.
  */
 async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   // Step 1: Skip code blocks enclosed by triple backticks
@@ -24,7 +52,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   })
 
   // Step 2: Process URLs in HTML or Markdown
-  const regex = /<(img|script|e-html|e-json|e-json|e-svg|e-markdown|template\s+is="e-json"|template\s+is="e-wrapper"|link(?:\s+rel="preload")?)\s+[^>]*(src|href|data-src)="([^"]+)"/g
+  const regex = /&lt;(img|script|e-html|e-json|e-json|e-svg|e-markdown|template\s+is="e-json"|template\s+is="e-wrapper"|link(?:\s+rel="preload")?)\s+[^>]*(src|href|data-src)="([^"]+)"/g
   let match
   
   while ((match = regex.exec(content)) !== null) {
@@ -32,16 +60,16 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
     const attribute = match[2]
     let url = match[3]
 
-    const toBeProcessed = url &&
-      !/template\s+is="e-json"/.test(tagName) &&
-      tagName !== 'e-json' &&
-      tagName !== 'a' &&
-      !url.startsWith('http') &&
-      !url.startsWith('mailto') &&
-      !url.startsWith('tel') &&
+    const toBeProcessed = url &amp;&amp;
+      !/template\s+is="e-json"/.test(tagName) &amp;&amp;
+      tagName !== 'e-json' &amp;&amp;
+      tagName !== 'a' &amp;&amp;
+      !url.startsWith('http') &amp;&amp;
+      !url.startsWith('mailto') &amp;&amp;
+      !url.startsWith('tel') &amp;&amp;
       !url.startsWith('data:')
 
-    // Skip if URL is external (http, mailto, etc.) or is in an <a> tag
+    // Skip if URL is external (http, mailto, etc.) or is in an &lt;a> tag
     if (toBeProcessed) {
       // Use srcMapper to map URLs to actual file paths
       const filePath = pathByUrl(url, srcMapper, baseFolder)
@@ -51,10 +79,8 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
         const fileHash = await getFileHash(fileStats)
         const versionedUrl = url.includes('?v=') ? url.replace(/(\?v=).*$/, `?v=${fileHash}`) : `${url}?v=${fileHash}`
         
-        // Use a global regex to replace all occurrences of the same URL
-        const escapedUrl = url.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') // Escape special characters in the URL
-        const globalRegex = new RegExp(escapedUrl, 'g')
-        content = content.replace(globalRegex, versionedUrl)
+        // Replace the original URL with the versioned URL in the content
+        content = content.replace(url, versionedUrl)
       } catch (err) {
         console.warn(`File not found for ${url}:`, err.message)
       }
@@ -105,3 +131,26 @@ module.exports = async function updateCacheVersionsInUrls(folderPath, srcMapper)
   const baseFolder = folderPath
   await processDirectory(baseFolder, folderPath, srcMapper)
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#disconnectAndExitAllWorkersWithTimeoutRecursively">disconnectAndExitAllWorkersWithTimeoutRecursively</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Nov 23 2024 03:10:43 GMT+0400 (Georgia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

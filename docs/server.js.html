@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const http2 = require('http2')
+const fs = require('fs')
+const domain = require('domain')
+const tls = require('tls')
+const cluster = require('cluster')
+
+const handleRequests = require('./handleRequests')
+const constructDomain = require('./constructDomain')
+const readSecrets = require('./readSecrets')
+
+const proxyServer = require('./proxyServer')
+
+const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
+
+/**
+ * Creates and configures an HTTP/2 server with optional HTTP/1.1 support and proxy setup.
+ *
+ * @param {Object} app - The application configuration object.
+ * @returns {Function} A function to start the server listener.
+ *
+ * @description
+ * This function sets up an HTTP/2 server with SSL/TLS support, optional HTTP/1.1 compatibility,
+ * and dynamic configuration for certificates. It handles incoming requests with a unified request
+ * handler and domain-based error isolation. It also supports a fallback proxy server for production environments.
+ */
+module.exports = function server(app) {
+
+  const certAndKeyExists = fs.existsSync(global.config.cert) &amp;&amp;
+    fs.existsSync(global.config.key) &amp;&amp;
+    fs.statSync(global.config.cert).size !== 0 &amp;&amp;
+    fs.statSync(global.config.key).size !== 0
+  const keyFile = certAndKeyExists ? global.config.key : global.config.tmpKey
+  const certFile = certAndKeyExists ? global.config.cert : global.config.tmpCert
+  
+  global.config.host = global.config.host || 'localhost'
+  global.config.port = global.config.port || 8004
+
+  const server = http2.createSecureServer({
+    key: fs.readFileSync(keyFile),
+    cert: fs.readFileSync(certFile),
+    SNICallback: (servername, callback) => {
+
+      const certAndKeyExists = fs.existsSync(global.config.cert) &amp;&amp;
+        fs.existsSync(global.config.key) &amp;&amp;
+        fs.statSync(global.config.cert).size !== 0 &amp;&amp;
+        fs.statSync(global.config.key).size !== 0
+
+      const keyFile = certAndKeyExists ? global.config.key : global.config.tmpKey
+      const certFile = certAndKeyExists ? global.config.cert : global.config.tmpCert
+      const ctx = tls.createSecureContext({
+        key: fs.readFileSync(keyFile),
+        cert: fs.readFileSync(certFile)
+      })
+      callback(null, ctx)
+    },
+    allowHTTP1: true
+  }, (req, res) => {
+    if (req.httpVersion === '2.0') {
+      // we can go to server.on('stream') event
+      return
+    }
+    const stream = emulateStreamForHttp1(req, res)
+    constructDomain(server, stream).run(async () => {
+      app.config = global.config
+      await handleRequests(app, stream, stream.headers)
+    })
+    // res.writeHead(426, {
+    //   'upgrade': 'HTTP/2.0',
+    //   'content-type': 'text/plain'
+    // })
+    // res.end('Please upgrade to HTTP/2')
+  })
+
+  server.on('stream', (stream, headers) => {
+    constructDomain(server, stream).run(async () => {
+      app.config = global.config
+      await handleRequests(app, stream, headers)
+    })
+  })
+
+  process.on('exit', () => {
+    if (server.listening) {
+      global.log(`server on worker ${process.pid} is about to be closed`)
+      server.close()
+    }
+  })
+
+  process.on('message', (message) => {
+    if (message === 'Message from Primary Process: Exit your process with code 0 to restart it again.') {
+      process.exit(0)
+    }
+  })
+  
+  return function serverListener() {
+    server.listen({
+      host: global.config.host,
+      port: global.config.port
+    }, () => {
+      global.log(`HTTP/2 server running at https://${global.config.host}:${global.config.port}`)
+    })
+    if (process.env.ENV) {
+      const itIsProd = process.env.ENV.startsWith('prod')
+      if (itIsProd &amp;&amp; !global.config.proxy.port) {
+        throw new Error('In prod environment you must specifiy a port for HTTP proxy server in cofing with key: `proxy: { port: &lt;value> }`')
+      }
+      if (itIsProd) {
+        proxyServer({
+          proxyPort: global.config.proxy.port,
+          host: global.config.host,
+          port: global.config.port,
+          webroot: global.config.webroot
+        })()
+      }
+    }
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#disconnectAndExitAllWorkersWithTimeoutRecursively">disconnectAndExitAllWorkersWithTimeoutRecursively</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Nov 23 2024 03:10:43 GMT+0400 (Georgia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

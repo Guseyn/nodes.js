@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: cluster.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: cluster.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const os = require('os')
+const path = require('path')
+const cluster = require('cluster')
+const fs = require('fs')
+
+const readSecrets = require('./readSecrets')
+const setupFileLogging = require('./setupFileLogging')
+const disconnectAndExitAllWorkersWithTimeoutRecursively = require('./disconnectAndExitAllWorkersWithTimeoutRecursively')
+
+/**
+ * Creates and manages a cluster of worker processes.
+ *
+ * @param {string} primaryScript - The relative path to the primary script to be executed by the master process.
+ * @param {string} workerScript - The relative path to the worker script to be executed by worker processes.
+ * @returns {Function} A function that initializes the cluster and manages worker processes.
+ */
+module.exports = function clusterRunner(primaryScript, workerScript) {
+  /**
+   * Initializes the cluster, sets up workers, and manages their lifecycle.
+   *
+   * @param {Object} options - The configuration options for the cluster.
+   * @param {number} [options.numberOfWorkers=os.cpus().length] - The number of worker processes to spawn. Defaults to the number of CPU cores.
+   * @param {number} options.restartTime - The timeout (in milliseconds) before restarting workers after a graceful shutdown.
+   * @param {Object} options.config - Configuration object to be passed to workers and the primary process.
+   * @param {string} [options.logFile] - The path to the log file for storing logs. If undefined, logs are sent to the console.
+   * @returns {Promise&lt;void>} A promise that resolves when the cluster is fully initialized.
+   */
+  return async ({
+    numberOfWorkers,
+    restartTime,
+    config,
+    logFile
+  }) => {
+    numberOfWorkers = numberOfWorkers || os.cpus().length
+    if (cluster.isPrimary) {
+      fs.writeFileSync('primary.pid', process.pid.toString(), 'utf8')
+
+      await readSecrets(config || {})
+
+      global.log = console.log
+      if (logFile !== undefined) {
+        setupFileLogging(logFile)
+      }
+
+      const primaryScriptPath = path.join(process.cwd(), primaryScript)
+      global.config = config
+      require(primaryScriptPath)
+      
+      for (let i = 0; i &lt; numberOfWorkers; i++) {
+        cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
+      }
+
+      cluster.on('exit', (worker, code, signal) => {
+        if (signal === 'SIGINT') {
+          global.log(`worker ${worker.process.pid} died (${signal || code}). exiting...`)
+          process.exit()
+        } else {
+          global.log(`worker ${worker.process.pid} died (${signal || code}). restarting...`)
+          cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })  
+        }
+      })
+
+      process.on('SIGINT', () => {
+        fs.unlinkSync('primary.pid')
+        process.exit()
+      })
+
+      process.on('SIGUSR1', () => {
+        const allWorkers = Object.values(cluster.workers)
+        disconnectAndExitAllWorkersWithTimeoutRecursively(allWorkers, 0, restartTime, (error, allWorkers) => {
+          if (error) {
+            global.log(error)
+          }
+          // To be sure message will be dispalyed after all workers are restarted.
+          global.log('All workers are restarted successfully (gracefully and recursively with timeout).')
+        })
+      })
+
+    } else {
+      global.config = JSON.parse(process.env.CONFIG || '{}')
+      global.log = console.log
+      if (process.env.USE_FILE_LOGGING === 'true') {
+        setupFileLogging(logFile)
+      }
+      const workerScriptPath = path.join(process.cwd(), workerScript)
+      require(workerScriptPath)
+    }
+  }
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#disconnectAndExitAllWorkersWithTimeoutRecursively">disconnectAndExitAllWorkersWithTimeoutRecursively</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Nov 23 2024 03:10:43 GMT+0400 (Georgia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

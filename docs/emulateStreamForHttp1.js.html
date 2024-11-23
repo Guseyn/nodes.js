@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: emulateStreamForHttp1.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: emulateStreamForHttp1.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { Duplex } = require('stream')
+
+/**
+ * Emulates an HTTP/2-like stream for HTTP/1.1 requests and responses.
+ *
+ * @param {Object} req - The HTTP/1.1 request object.
+ * @param {Object} res - The HTTP/1.1 response object.
+ * @returns {Duplex} A Duplex stream that emulates an HTTP/2-like stream interface.
+ *
+ * @description
+ * This function creates a Duplex stream that bridges the gap between HTTP/1.1 and an HTTP/2-like API.
+ * It allows handling HTTP/1.1 requests and responses using a stream-like interface commonly used with HTTP/2.
+ *
+ * ### Key Features:
+ * - Implements a readable stream from the incoming `req` data.
+ * - Implements a writable stream to the `res` object.
+ * - Provides HTTP/2-style headers (`:method`, `:path`, etc.).
+ * - Handles `respond` and `pushStream` methods for API compatibility.
+ *
+ * ### Example Usage
+ * ```javascript
+ * const http = require('http');
+ * const emulateStreamForHttp1 = require('./emulateStreamForHttp1');
+ *
+ * const server = http.createServer((req, res) => {
+ *   const stream = emulateStreamForHttp1(req, res);
+ *   stream.on('data', (chunk) => {
+ *     console.log('Received chunk:', chunk.toString());
+ *   });
+ *   stream.respond({
+ *     ':status': 200,
+ *     'content-type': 'text/plain'
+ *   });
+ *   stream.end('Hello, world!');
+ * });
+ *
+ * server.listen(3000, () => {
+ *   console.log('Server running on http://localhost:3000');
+ * });
+ * ```
+ */
+module.exports = function emulateStreamForHttp1(req, res) {
+  const stream = new Duplex({
+    // Implement the readable side (data coming from req)
+    read() {
+      req.on('data', (chunk) => {
+        this.push(chunk)
+      })
+
+      req.on('end', () => {
+        this.push(null) // Signal end of stream
+      })
+    },
+
+    // Implement the writable side (data going to res)
+    write(chunk, encoding, callback) {
+      res.write(chunk, encoding, callback)
+    },
+
+    final(callback) {
+      res.end()
+      callback()
+    }
+  })
+
+  const headers = {
+    ':method': req.method,
+    ':path': req.url,
+    ':authority': req.headers.host,
+    ...req.headers
+  }
+
+  // Just to avoid confusion in unified API, let's delete HTTP/1 specific headers
+  delete headers['connection']
+  delete headers['host']
+  delete headers['origin']
+  delete headers['upgrade']
+  delete headers['keep-alive']
+  delete headers['proxy-connection']
+  delete headers['transfer-encoding']
+  delete headers['upgrade-insecure-requests']
+
+  stream.headers = headers
+  stream.respond = (responseHeaders) => {
+    const status = responseHeaders[':status'] || 200
+    responseHeaders['x-authority'] = headers[':authority']
+    delete responseHeaders[':status']
+    delete responseHeaders[':method']
+    delete responseHeaders[':path']
+    delete responseHeaders[':scheme']
+    responseHeaders['x-handled-by-http1-stream-emulation'] = true
+    res.writeHead(status, responseHeaders)
+  }
+  stream.write = (chunk) => {
+    res.write(chunk)
+  }
+  stream.end = (data) => {
+    res.end(data)
+  }
+  stream.destroy = (error) => {
+    if (error) {
+      res.destroy(error)
+    } else {
+      res.destroy()
+    }
+  }
+  stream.setTimeout = (ms, callback) => {
+    res.setTimeout(ms, callback)
+  }
+  stream.on = (event, handler) => {
+    res.on(event, handler)
+  }
+  stream.pushStream = (headers, callback) => {
+    if (callback) {
+      callback(new Error('Server push is not supported in HTTP/1.1'))
+    }
+  }
+
+  return stream
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#disconnectAndExitAllWorkersWithTimeoutRecursively">disconnectAndExitAllWorkersWithTimeoutRecursively</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Nov 23 2024 03:10:43 GMT+0400 (Georgia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

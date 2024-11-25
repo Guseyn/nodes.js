@@ -790,5 +790,6 @@ SUM:                            32            148             51           1477
 - [ ] Add secrets reader from the secret file
 - [ ] Simple Validation For incoming requests
 - [ ] JWT auth out of box
+- [ ] Protected Static files
 - [ ] Introduce Merchant of Record
 - [ ] SQLite out of box with user management

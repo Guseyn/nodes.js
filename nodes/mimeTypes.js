@@ -134,6 +134,7 @@ module.exports = {
   aifc: 'audio/x-aiff',
   aiff: 'audio/x-aiff',
   m3u: 'audio/x-mpegurl',
+  m3u8: 'application/vnd.apple.mpegurl',
   ra: 'audio/x-pn-realaudio',
   ram: 'audio/x-pn-realaudio',
   wav: 'audio/x-wav',

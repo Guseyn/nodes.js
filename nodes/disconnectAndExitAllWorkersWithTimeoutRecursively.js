@@ -27,8 +27,6 @@ function disconnectAndExitAllWorkersWithTimeoutRecursively(
     const currentWoker = allWorkers[currentWorkerIndex]
     if (currentWoker.process.connected) {
       try {
-        currentWoker.send('Message from Primary Process: Exit your process with code 0 to restart it again.')
-        currentWoker.disconnect()
         setTimeout(() => {
           try {
             disconnectAndExitAllWorkersWithTimeoutRecursively(
@@ -41,6 +39,7 @@ function disconnectAndExitAllWorkersWithTimeoutRecursively(
             callback(error, null)
           }
         }, (restartTime || TIME_TO_EXIT_PROCESS) * 1000)
+        currentWoker.disconnect()
       } catch (error) {
         callback(error, null)
       }

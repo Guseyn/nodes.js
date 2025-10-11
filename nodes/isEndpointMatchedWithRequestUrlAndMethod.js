@@ -44,10 +44,6 @@ function matchUrlPattern(pattern, url) {
     return false
   }
 
-  if (patternQueryParts.length !== urlQueryParts.length) {
-    return false
-  }
-  
   for (let i = 0; i < patternPathParts.length; i++) {
     const patternPathPart = patternPathParts[i]
     const urlPathPart = urlPathParts[i]
@@ -64,15 +60,5 @@ function matchUrlPattern(pattern, url) {
       return false
     }
   }
-
-  for (let i = 0; i < patternQueryParts.length; i++) {
-    const patternQueryPart = patternQueryParts[i]
-    const urlQueryPart = urlQueryParts[i]
-    
-    if (urlQueryPart.split('=')[0] !== patternQueryPart) {
-      return false
-    }
-  }
-  
   return true
 }

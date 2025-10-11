@@ -48,13 +48,24 @@ module.exports = function urlParamsAndQueries(pattern, url) {
 
     for (let i = 0; i < patternQueryParts.length; i++) {
       const patternQueryPart = patternQueryParts[i]
-      const urlQueryPart = urlQueryParts[i]
+      const urlQueryPart = urlQueryParts
+        .find(urlQueryPart => urlQueryPart.split('=')[0] === patternQueryPart)
       
-      const urlQueryPartKeyAndValue = urlQueryPart.split('=')
-      const urlQueryPartKey = urlQueryPartKeyAndValue[0]
-      const urlQueryPartValue = urlQueryPartKeyAndValue[1]
-      if (urlQueryPartKey === patternQueryPart && urlQueryPartValue) {
-        queries[patternQueryPart] = urlQueryPartValue
+      if (urlQueryPart !== undefined && urlQueryPart !== null) {
+        const urlQueryPartKeyAndValue = urlQueryPart.split('=')
+        const urlQueryPartKey = urlQueryPartKeyAndValue[0]
+        const urlQueryPartValue = urlQueryPartKeyAndValue[1]
+        if (urlQueryPartKey === patternQueryPart && urlQueryPartValue) {
+          queries[patternQueryPart] = urlQueryPartValue
+        }
+      }
+    }
+  } else {
+    const [urlPath, queryString] = url.split('?')
+    if (queryString) {
+      const searchParams = new URLSearchParams(queryString)
+      for (const [key, value] of searchParams.entries()) {
+        queries[key] = value
       }
     }
   }

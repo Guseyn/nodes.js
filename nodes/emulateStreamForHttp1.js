@@ -42,15 +42,7 @@ const { Duplex } = require('stream')
 module.exports = function emulateStreamForHttp1(req, res) {
   const stream = new Duplex({
     // Implement the readable side (data coming from req)
-    read() {
-      req.on('data', (chunk) => {
-        this.push(chunk)
-      })
-
-      req.on('end', () => {
-        this.push(null) // Signal end of stream
-      })
-    },
+    read() {},
 
     // Implement the writable side (data going to res)
     write(chunk, encoding, callback) {
@@ -61,6 +53,14 @@ module.exports = function emulateStreamForHttp1(req, res) {
       res.end()
       callback()
     }
+  })
+
+  req.on('data', (chunk) => {
+    stream.push(chunk)
+  })
+
+  req.on('end', () => {
+    stream.push(null) // Signal end of stream
   })
 
   const headers = {
@@ -91,24 +91,8 @@ module.exports = function emulateStreamForHttp1(req, res) {
     responseHeaders['x-handled-by-http1-stream-emulation'] = true
     res.writeHead(status, responseHeaders)
   }
-  stream.write = (chunk) => {
-    res.write(chunk)
-  }
-  stream.end = (data) => {
-    res.end(data)
-  }
-  stream.destroy = (error) => {
-    if (error) {
-      res.destroy(error)
-    } else {
-      res.destroy()
-    }
-  }
   stream.setTimeout = (ms, callback) => {
     res.setTimeout(ms, callback)
-  }
-  stream.on = (event, handler) => {
-    res.on(event, handler)
   }
   stream.pushStream = (headers, callback) => {
     if (callback) {

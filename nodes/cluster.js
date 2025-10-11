@@ -50,19 +50,40 @@ module.exports = function clusterRunner(primaryScript, workerScript) {
         cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
       }
 
+      let lastRestart = 0
+      const restartCooldownMs = 1_000
+
       cluster.on('exit', (worker, code, signal) => {
         if (signal === 'SIGINT') {
-          global.log(`worker ${worker.process.pid} died (${signal || code}). exiting...`)
-          process.exit()
+          global.log(`💀 worker ${worker.process.pid} died (${signal || code}). exiting...`)
         } else {
-          global.log(`worker ${worker.process.pid} died (${signal || code}). restarting...`)
+          const now = Date.now()
+          if (now - lastRestart < restartCooldownMs) {
+            global.log('Restart suppressed to avoid loop.')
+            process.exit()
+            return
+          }
+          lastRestart = now
+          global.log(`♻️ worker ${worker.process.pid} died (${signal || code}). restarting...`)
           cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })  
         }
       })
 
       process.on('SIGINT', () => {
-        fs.unlinkSync('primary.pid')
-        process.exit()
+        const checkInterval = 500 // ms
+        const pidFile = 'primary.pid'
+
+        const interval = setInterval(() => {
+          const allWorkers = Object.values(cluster.workers)
+          if (allWorkers.length === 0) {
+            clearInterval(interval)
+            global.log('🧘 All workers are shut down (gracefully and recursively with timeout).')
+            try {
+              fs.unlinkSync(pidFile)
+            } catch {}
+            process.exit(0)
+          }
+        }, checkInterval)
       })
 
       process.on('SIGUSR1', () => {
@@ -71,19 +92,28 @@ module.exports = function clusterRunner(primaryScript, workerScript) {
           if (error) {
             global.log(error)
           }
-          // To be sure message will be dispalyed after all workers are restarted.
-          global.log('All workers are restarted successfully (gracefully and recursively with timeout).')
+          global.log('🧘 All workers are restarted (gracefully and recursively with timeout).')
         })
       })
 
+      process.on('uncaughtException', async (err) => {
+        global.log('Uncaught Exception in primary:', err)
+      })
+
+      process.on('unhandledRejection', async (reason) => {
+        global.log('Unhandled Rejection in primary:', reason)
+      })
+
     } else {
-      global.config = JSON.parse(process.env.CONFIG || '{}')
-      global.log = console.log
-      if (process.env.USE_FILE_LOGGING === 'true') {
-        setupFileLogging(logFile)
-      }
-      const workerScriptPath = path.join(process.cwd(), workerScript)
-      require(workerScriptPath)
+      setTimeout(function() {
+        global.config = JSON.parse(process.env.CONFIG || '{}')
+        global.log = console.log
+        if (process.env.USE_FILE_LOGGING === 'true') {
+          setupFileLogging(logFile)
+        }
+        const workerScriptPath = path.join(process.cwd(), workerScript)
+        require(workerScriptPath)
+      }, 5_000);
     }
   }
 }

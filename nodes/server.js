@@ -1,6 +1,5 @@
 const http2 = require('http2')
 const fs = require('fs')
-const domain = require('domain')
 const tls = require('tls')
 const cluster = require('cluster')
 
@@ -25,19 +24,25 @@ const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
  */
 module.exports = function server(app) {
 
+  app.config = global.config
+
   const certAndKeyExists = fs.existsSync(global.config.cert) &&
     fs.existsSync(global.config.key) &&
     fs.statSync(global.config.cert).size !== 0 &&
     fs.statSync(global.config.key).size !== 0
   const keyFile = certAndKeyExists ? global.config.key : global.config.tmpKey
   const certFile = certAndKeyExists ? global.config.cert : global.config.tmpCert
+  global.log('🔐 Checking certificate and key files...')
   
   global.config.host = global.config.host || 'localhost'
   global.config.port = global.config.port || 8004
 
+  const key = fs.readFileSync(keyFile)
+  const cert = fs.readFileSync(certFile)
+
   const server = http2.createSecureServer({
-    key: fs.readFileSync(keyFile),
-    cert: fs.readFileSync(certFile),
+    key,
+    cert,
     SNICallback: (servername, callback) => {
 
       const certAndKeyExists = fs.existsSync(global.config.cert) &&
@@ -61,7 +66,6 @@ module.exports = function server(app) {
     }
     const stream = emulateStreamForHttp1(req, res)
     constructDomain(server, stream).run(async () => {
-      app.config = global.config
       await handleRequests(app, stream, stream.headers)
     })
     // res.writeHead(426, {
@@ -73,14 +77,13 @@ module.exports = function server(app) {
 
   server.on('stream', (stream, headers) => {
     constructDomain(server, stream).run(async () => {
-      app.config = global.config
       await handleRequests(app, stream, headers)
     })
   })
 
   process.on('exit', () => {
     if (server.listening) {
-      global.log(`server on worker ${process.pid} is about to be closed`)
+      global.log(`🧹 Server on worker ${process.pid} is about to be closed`)
       server.close()
     }
   })
@@ -90,18 +93,18 @@ module.exports = function server(app) {
       process.exit(0)
     }
   })
-  
+
   return function serverListener() {
     server.listen({
       host: global.config.host,
       port: global.config.port
     }, () => {
-      global.log(`HTTP/2 server running at https://${global.config.host}:${global.config.port}`)
+      global.log(`🌐 HTTP/2 server running at 🔗 https://${global.config.host}:${global.config.port} in ⚙ process ${process.pid} ⚙`)
     })
     if (process.env.ENV) {
       const itIsProd = process.env.ENV.startsWith('prod')
       if (itIsProd && !global.config.proxy.port) {
-        throw new Error('In prod environment you must specifiy a port for HTTP proxy server in cofing with key: `proxy: { port: <value> }`')
+        throw new Error('❌ In prod environment you must specifiy a port for HTTP proxy server in cofing with key: `proxy: { port: <value> }`')
       }
       if (itIsProd) {
         proxyServer({

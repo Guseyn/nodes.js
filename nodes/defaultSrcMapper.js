@@ -18,6 +18,10 @@ const path = require('path')
  * ```
  */
 module.exports = function defaultSrcMapper(baseFolder, requestUrl) {
-  const parts = requestUrl.split('?')[0].split('/').filter(part => part !== '')
+  const parts = requestUrl
+    .split('?')[0]
+    .split('/')
+    .filter(part => part !== '')
+    .map(part => decodeURIComponent(part))
   return path.join(baseFolder, ...parts)
 }

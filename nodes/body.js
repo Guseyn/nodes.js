@@ -22,7 +22,8 @@ module.exports = function body(stream, { maxSize } = {}) {
       }
     })
     stream.on('end', () => {
-      resolve(Buffer.concat(body))
+      const fullBody = Buffer.concat(body)
+      resolve(fullBody)
     })
     stream.on('error', (err) => {
       reject(err)

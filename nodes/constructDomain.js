@@ -29,12 +29,20 @@ module.exports = function constructDomain(server, stream) {
   const d = domain.create()
   d.on('error', (err) => {
     try {
+      global.log(err)
       if (ERROR_CODES_TO_IGNORE.indexOf(err.code) === -1) {
-        stream.respond({
-          'content-type': 'text/plain',
-          'status': 500
-        })
-        stream.end(err.stack)
+        if (
+          !stream.closed &&
+          !stream.destroyed && 
+          !stream.writableEnded && 
+          !stream.aborted
+        ) {
+          stream.respond({
+            'content-type': 'text/plain',
+            'status': 500
+          })
+          stream.end(err.stack)
+        }
         const killtimer = setTimeout(() => {
           process.exit(1)
         }, TIME_TO_EXIT_PROCESS)

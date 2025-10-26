@@ -33,7 +33,9 @@ module.exports = function corsHandler({
     allowedCredentials,
     maxAge
   })
-  responseHeaders['x-authority'] = requestAuthority
+  if (requestAuthority) {
+    responseHeaders['x-authority'] = requestAuthority
+  }
   stream.respond(headers)
   stream.end()
 }

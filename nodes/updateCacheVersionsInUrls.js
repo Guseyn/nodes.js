@@ -15,7 +15,7 @@ const pathByUrl = require('./pathByUrl')
  */
 async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   // Step 1: Skip code blocks enclosed by triple backticks
-  console.log('📝  Step 1: Skipping code blocks...')
+  console.log('📝 Step 1: Skipping code blocks...')
   const codeBlocks = []
   content = content.replace(/```[\s\S]*?```|`[^`]*`/g, (codeBlock) => {
     // Save the code block in an array to avoid altering it
@@ -26,7 +26,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
 
 
   // Step 2: Handle <script type="importmap"> blocks
-  console.log('🗺️  Step 2: Processing <script type="importmap"> blocks...')
+  console.log('📝 Step 2: Processing <script type="importmap"> blocks...')
   const importmapRegex = /^([ \t]*)<script\s+type=["']importmap["'][^>]*>([\s\S]*?)<\/script>/gim
   let importMatch
   while ((importMatch = importmapRegex.exec(content)) !== null) {
@@ -54,7 +54,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   }
 
   // Step 3: Process URLs in HTML or Markdown
-  console.log('🔗  Step 3: Processing URLs in HTML or Markdown...')
+  console.log('🔗 Step 3: Processing URLs in HTML or Markdown...')
   const regex = /<(img|script|e-html|e-json|e-json|e-svg|e-markdown|template\s+is="e-json"|template\s+is="e-wrapper"|link(?:\s+rel="preload")?)\s+[^>]*(src|href|data-src)="([^"]+)"/g
   let match
   
@@ -84,7 +84,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
         const fileHash = await getFileHash(fileStats)
         const versionedUrl = url.includes('?v=') ? url.replace(/(\?v=).*$/, `?v=${fileHash}`) : `${url}?v=${fileHash}`
         
-        console.log(`✨  Versioned URL: ${url} → ${versionedUrl}`)
+        console.log(`✨ Versioned URL: ${url} → ${versionedUrl}`)
 
         // Use a global regex to replace all occurrences of the same URL
         const escapedUrl = url.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') // Escape special characters in the URL
@@ -97,7 +97,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   }
 
   // Step 4: Restore the skipped code blocks
-  console.log('🔄  Step 4: Restoring skipped code blocks...')
+  console.log('🔄 Step 4: Restoring skipped code blocks...')
   codeBlocks.forEach((codeBlock, index) => {
     content = content.replace(`___CODE_BLOCK_${index}___`, codeBlock)
   })
@@ -106,7 +106,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
 }
 
 async function processDirectory(baseFolder, folderPath, srcMapper) {
-  console.log(`📂  Processing directory: ${folderPath}`)
+  console.log(`📂 Processing directory: ${folderPath}`)
   const files = await fs.readdir(folderPath)
   const htmlFiles = files.filter(file => file.endsWith('.html') || file.endsWith('.md'))
 
@@ -119,7 +119,7 @@ async function processDirectory(baseFolder, folderPath, srcMapper) {
 
     // Write the updated content back to the file
     await fs.writeFile(filePath, content, 'utf-8')
-    console.log(`✅  Updated: ${file}`)
+    console.log(`✅ Updated: ${file}`)
   }
 
   // Process subdirectories recursively
@@ -129,7 +129,7 @@ async function processDirectory(baseFolder, folderPath, srcMapper) {
     
     // If it's a directory, call processDirectory recursively
     if (stats.isDirectory()) {
-      console.log(`📁  Entering subdirectory: ${filePath}`)
+      console.log(`📁 Entering subdirectory: ${filePath}`)
       await processDirectory(baseFolder, filePath, srcMapper)
     }
   }
@@ -155,7 +155,7 @@ async function maybeVersionUrl(url, baseFolder, srcMapper) {
       ? url.replace(/(\?v=).*$/, `?v=${fileHash}`)
       : `${url}?v=${fileHash}`
   } catch (err) {
-    console.warn(`❌  File not found for ${url}:`, err.message)
+    console.warn(`❌ File not found for ${url}:`, err.message)
     return url
   }
 }
@@ -166,8 +166,8 @@ async function getFileHash(fileStats) {
 }
 
 module.exports = async function updateCacheVersionsInUrls(folderPath, srcMapper) {
-  console.log('🚀  Starting cache version update...')
+  console.log('🚀 Starting cache version update...')
   const baseFolder = folderPath
   await processDirectory(baseFolder, folderPath, srcMapper)
-  console.log('🏁  Finished cache version update!')
+  console.log('🏁 Finished cache version update!')
 }

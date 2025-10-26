@@ -153,6 +153,7 @@ module.exports = {
   ras: 'image/x-cmu-raster',
   cmx: 'image/x-cmx',
   ico: 'image/x-icon',
+  png: 'image/png',
   pnm: 'image/x-portable-anymap',
   pbm: 'image/x-portable-bitmap',
   pgm: 'image/x-portable-graymap',
@@ -203,6 +204,7 @@ module.exports = {
 
   flr: 'x-world/x-vrml',
   vrml: 'x-world/x-vrml',
+  webm: 'video/webm',
   wrl: 'x-world/x-vrml',
   wrz: 'x-world/x-vrml',
   xaf: 'x-world/x-vrml',

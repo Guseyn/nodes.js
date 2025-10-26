@@ -30,23 +30,57 @@ module.exports = async function handleRequests(app, stream, headers) {
   const requestUrl = headers[':path']
   const requestMethod = headers[':method']
   const requestAuthority = headers[':authority']
+  const requestRange = headers['range']
 
   const allEndpointsInApp = app.api || []
   const allSrcInApp = app.static || []
+
+  const originalRespond = stream.respond
+  stream._hasResponded = false
+  stream._hasEnded = false
+
+  stream.respond = function (headers) {
+    if (
+      stream.closed ||
+      stream.destroyed || 
+      stream.writableEnded || 
+      stream.aborted ||
+      stream._hasResponded
+    ) {
+      return
+    }
+    stream._hasResponded = true
+    originalRespond.call(stream, headers)
+  }
+
+  const originalEnd = stream.end
+  stream.end = function (body) {
+    if (
+      stream.closed ||
+      stream.destroyed || 
+      stream.writableEnded || 
+      stream.aborted ||
+      stream._hasEnded
+    ) {
+      return
+    }
+    stream._hasEnded = true
+    originalEnd.call(stream, body)
+  }
 
   if (app.indexFile && requestMethod === 'GET' && (requestUrl === '/' || requestUrl === '')) {
     fs.stat(app.indexFile, (err, stats) => {
       if (err) {
         throw err
       }
-      streamFile(
-        app.indexFile,
+      streamFile({
+        file: app.indexFile,
         stream,
         requestMethod,
         requestAuthority,
         stats,
-        200
-      )
+        status: 200
+      })
     })
     return
   }
@@ -133,13 +167,13 @@ module.exports = async function handleRequests(app, stream, headers) {
                   const allowedHeaders = matchedSrc.allowedHeaders || []
                   const allowedCredentials = matchedSrc.allowedCredentials || false
                   const maxAge = matchedSrc.maxAge || undefined
-                  streamFile(
-                    fileNotFound,
+                  streamFile({
+                    file: fileNotFound,
                     stream,
                     requestMethod,
                     requestAuthority,
                     stats,
-                    404,
+                    status: 404,
                     useGzip,
                     useCache,
                     cacheControl,
@@ -150,7 +184,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     allowedHeaders,
                     allowedCredentials,
                     maxAge
-                  )
+                  })
                 }
               })
             }
@@ -183,13 +217,13 @@ module.exports = async function handleRequests(app, stream, headers) {
                   const allowedHeaders = matchedSrc.allowedHeaders || []
                   const allowedCredentials = matchedSrc.allowedCredentials || false
                   const maxAge = matchedSrc.maxAge || undefined
-                  streamFile(
-                    fileNotAccessible,
+                  streamFile({
+                    file: fileNotAccessible,
                     stream,
                     requestMethod,
                     requestAuthority,
                     stats,
-                    403,
+                    status: 403,
                     useGzip,
                     useCache,
                     cacheControl,
@@ -200,7 +234,7 @@ module.exports = async function handleRequests(app, stream, headers) {
                     allowedHeaders,
                     allowedCredentials,
                     maxAge
-                  )
+                  })
                 }
               })
             }
@@ -223,13 +257,14 @@ module.exports = async function handleRequests(app, stream, headers) {
             const allowedHeaders = matchedSrc.allowedHeaders || []
             const allowedCredentials = matchedSrc.allowedCredentials || false
             const maxAge = matchedSrc.maxAge || undefined
-            streamFile(
-              resolvedFilePath,
+            streamFile({
+              file: resolvedFilePath,
               stream,
               requestMethod,
               requestAuthority,
+              requestRange,
               stats,
-              200,
+              status: 200,
               useGzip,
               useCache,
               cacheControl,
@@ -240,7 +275,7 @@ module.exports = async function handleRequests(app, stream, headers) {
               allowedHeaders,
               allowedCredentials,
               maxAge
-            )
+            })
           }
         }
       })

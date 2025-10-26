@@ -1,8 +1,10 @@
 const zlib = require('zlib')
 const fs = require('fs')
+const path = require('path')
 
 const allowedOrigin = require('./allowedOrigin')
 const mimeType = require('./mimeType')
+const nonGzipTypes = require('./nonGzipTypes')
 
 const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
 
@@ -27,11 +29,12 @@ const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
  * @param {number} [maxAge] - The maximum age (in seconds) for caching CORS preflight responses.
  * @returns {void}
  */
-module.exports = function streamFile(
+module.exports = function streamFile({
   file,
   stream,
   requestMethod,
   requestAuthority,
+  requestRange,
   stats,
   status,
   useGzip,
@@ -44,17 +47,45 @@ module.exports = function streamFile(
   allowedHeaders,
   allowedCredentials,
   maxAge
-) {
+}) {
   const gzip = zlib.createGzip()
   const mappedMimeType = mimeType(file)
   const responseHeaders = {
-    'content-type': mappedMimeType,
-    ':status': status
+    'content-type': mappedMimeType
   }
-  if (useGzip) {
+  const ext = path.extname(file).toLowerCase().trim().split('.')[1]
+  const isFileCanBeCompressed = nonGzipTypes.indexOf(ext) === -1
+
+  const fileSize = stats.size
+  let start = 0
+  let end = fileSize - 1
+
+  if (useGzip && isFileCanBeCompressed && !requestRange) {
     responseHeaders['content-encoding'] = 'gzip'
+    responseHeaders[':status'] = status
   } else {
-    responseHeaders['content-length'] = stats.size
+    if (requestRange) {
+      const rangeMatch = requestRange.match(/bytes=(\d*)-(\d*)/)
+      if (rangeMatch) {
+        start = rangeMatch[1] ? parseInt(rangeMatch[1], 10) : 0
+        end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : end
+
+        // safety checks
+        if (isNaN(start) || isNaN(end) || start > end || end >= fileSize) {
+          stream.respond({ ':status': 416 }) // Requested Range Not Satisfiable
+          stream.end()
+          return
+        }
+
+        responseHeaders[':status'] = 206
+        responseHeaders['content-range'] = `bytes ${start}-${end}/${fileSize}`
+        responseHeaders['content-length'] = end - start + 1
+        responseHeaders['accept-ranges'] = 'bytes'
+      }
+    } else {
+      responseHeaders[':status'] = status
+      responseHeaders['content-length'] = fileSize
+    }
   }
   if (useCache) {
     responseHeaders['etag'] = lastModified
@@ -62,6 +93,7 @@ module.exports = function streamFile(
   if (cacheControl) {
     responseHeaders['cache-control'] = cacheControl
   }
+
   addCorsHeadersIfNeeded(
     responseHeaders,
     requestAuthority, {
@@ -72,26 +104,51 @@ module.exports = function streamFile(
     allowedCredentials,
     maxAge
   })
+
   if (requestMethod === 'OPTIONS') {
     responseHeaders[':status'] = 204
     stream.respond(responseHeaders)
     stream.end()
-  } else {
-    const readStream = fs.createReadStream(file, {
-      highWaterMark: 1024
-    })
-    let gzipOptionalStream = readStream
-    if (useGzip) {
-      gzipOptionalStream = readStream.pipe(gzip)
-    }
+    return
+  }
+
+  const readStream = fs.createReadStream(file, {
+    start,
+    end,
+    highWaterMark: 1024
+  })
+  let outputStream = readStream
+  if (useGzip && isFileCanBeCompressed && !requestRange) {
+    outputStream = readStream.pipe(gzip)
+  }
+  if (
+    !stream.closed &&
+    !stream.destroyed && 
+    !stream.writableEnded && 
+    !stream.aborted
+  ) {
     stream.respond(responseHeaders)
-    gzipOptionalStream.pipe(stream)
-    gzipOptionalStream.on('error', (err) => {
+    outputStream.pipe(stream)
+  }
+  outputStream.on('error', (err) => {
+    if (
+      !stream.closed &&
+      !stream.destroyed && 
+      !stream.writableEnded && 
+      !stream.aborted
+    ) {
       stream.respond({ ':status': 500 })
       stream.end(`Internal Server Error while streaming file: ${file}`)
-    })
-    gzipOptionalStream.on('end', () => {
+    }
+  })
+  outputStream.on('end', () => {
+    if (
+      !stream.closed &&
+      !stream.destroyed && 
+      !stream.writableEnded && 
+      !stream.aborted
+    ) {
       stream.end()
-    })
-  }
+    }
+  })
 }

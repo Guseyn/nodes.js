@@ -50,6 +50,7 @@ module.exports = function constructDomain(server, stream) {
         server.close()
         if (cluster.worker.process.connected) {
           cluster.worker.disconnect()
+          setTimeout(() => cluster.worker.kill(), 5000)
         }
       }
     } catch (err2) {

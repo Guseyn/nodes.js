@@ -24,8 +24,8 @@ function disconnectAndExitAllWorkersWithTimeoutRecursively(
   callback
 ) {
   if (currentWorkerIndex < allWorkers.length) {
-    const currentWoker = allWorkers[currentWorkerIndex]
-    if (currentWoker.process.connected) {
+    const currentWorker = allWorkers[currentWorkerIndex]
+    if (currentWorker.process.connected) {
       try {
         setTimeout(() => {
           try {
@@ -39,7 +39,8 @@ function disconnectAndExitAllWorkersWithTimeoutRecursively(
             callback(error, null)
           }
         }, (restartTime || TIME_TO_EXIT_PROCESS) * 1000)
-        currentWoker.disconnect()
+        currentWorker.disconnect()
+        setTimeout(() => currentWorker.kill(), 5000)
       } catch (error) {
         callback(error, null)
       }

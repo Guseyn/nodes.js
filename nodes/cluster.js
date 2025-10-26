@@ -47,7 +47,10 @@ module.exports = function clusterRunner(primaryScript, workerScript) {
       require(primaryScriptPath)
       
       for (let i = 0; i < numberOfWorkers; i++) {
-        cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
+        const timeInBetween = 250
+        setTimeout(() => {
+          cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
+        }, i * timeInBetween)
       }
 
       let lastRestart = 0

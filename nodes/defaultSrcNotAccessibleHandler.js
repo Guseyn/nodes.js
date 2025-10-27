@@ -10,7 +10,7 @@
  * It responds with a `403 Forbidden` HTTP status code, indicating that access
  * to the resource is not allowed, and closes the stream with a custom message.
  */
-module.exports = async function defaultSrcNotAccessibleHandler({
+export default async function defaultSrcNotAccessibleHandler({
   stream
 }) {
   stream.respond({

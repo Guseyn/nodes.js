@@ -5,7 +5,7 @@
  * @param {string} requestAuthority - The authority (origin) of the incoming request.
  * @returns {string|null} The allowed origin to be set in the CORS headers or `null` if the request origin is not allowed.
  */
-module.exports = function allowedOrigin(allowedOrigins, requestAuthority) {
+export default function allowedOrigin(allowedOrigins, requestAuthority) {
   if (allowedOrigins === '*') {
     return '*'
   }

@@ -26,13 +26,15 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const zlib = require('zlib')
-const fs = require('fs')
+            <pre class="prettyprint source linenums"><code>import zlib from 'zlib'
+import fs from 'fs'
+import path from 'path'
 
-const allowedOrigin = require('./allowedOrigin')
-const mimeType = require('./mimeType')
+import allowedOrigin from './allowedOrigin.js'
+import mimeType from './mimeType.js'
+import nonGzipTypes from './nonGzipTypes.js'
 
-const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
+import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
 
 /**
  * Streams a file to the client, with optional Gzip compression, caching, and CORS support.
@@ -55,11 +57,12 @@ const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
  * @param {number} [maxAge] - The maximum age (in seconds) for caching CORS preflight responses.
  * @returns {void}
  */
-module.exports = function streamFile(
+export default function streamFile({
   file,
   stream,
   requestMethod,
   requestAuthority,
+  requestRange,
   stats,
   status,
   useGzip,
@@ -72,17 +75,45 @@ module.exports = function streamFile(
   allowedHeaders,
   allowedCredentials,
   maxAge
-) {
+}) {
   const gzip = zlib.createGzip()
   const mappedMimeType = mimeType(file)
   const responseHeaders = {
-    'content-type': mappedMimeType,
-    ':status': status
+    'content-type': mappedMimeType
   }
-  if (useGzip) {
+  const ext = path.extname(file).toLowerCase().trim().split('.')[1]
+  const isFileCanBeCompressed = nonGzipTypes.indexOf(ext) === -1
+
+  const fileSize = stats.size
+  let start = 0
+  let end = fileSize - 1
+
+  if (useGzip &amp;&amp; isFileCanBeCompressed &amp;&amp; !requestRange) {
     responseHeaders['content-encoding'] = 'gzip'
+    responseHeaders[':status'] = status
   } else {
-    responseHeaders['content-length'] = stats.size
+    if (requestRange) {
+      const rangeMatch = requestRange.match(/bytes=(\d*)-(\d*)/)
+      if (rangeMatch) {
+        start = rangeMatch[1] ? parseInt(rangeMatch[1], 10) : 0
+        end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : end
+
+        // safety checks
+        if (isNaN(start) || isNaN(end) || start > end || end >= fileSize) {
+          stream.respond({ ':status': 416 }) // Requested Range Not Satisfiable
+          stream.end()
+          return
+        }
+
+        responseHeaders[':status'] = 206
+        responseHeaders['content-range'] = `bytes ${start}-${end}/${fileSize}`
+        responseHeaders['content-length'] = end - start + 1
+        responseHeaders['accept-ranges'] = 'bytes'
+      }
+    } else {
+      responseHeaders[':status'] = status
+      responseHeaders['content-length'] = fileSize
+    }
   }
   if (useCache) {
     responseHeaders['etag'] = lastModified
@@ -90,6 +121,7 @@ module.exports = function streamFile(
   if (cacheControl) {
     responseHeaders['cache-control'] = cacheControl
   }
+
   addCorsHeadersIfNeeded(
     responseHeaders,
     requestAuthority, {
@@ -100,28 +132,53 @@ module.exports = function streamFile(
     allowedCredentials,
     maxAge
   })
+
   if (requestMethod === 'OPTIONS') {
     responseHeaders[':status'] = 204
     stream.respond(responseHeaders)
     stream.end()
-  } else {
-    const readStream = fs.createReadStream(file, {
-      highWaterMark: 1024
-    })
-    let gzipOptionalStream = readStream
-    if (useGzip) {
-      gzipOptionalStream = readStream.pipe(gzip)
-    }
+    return
+  }
+
+  const readStream = fs.createReadStream(file, {
+    start,
+    end,
+    highWaterMark: 1024
+  })
+  let outputStream = readStream
+  if (useGzip &amp;&amp; isFileCanBeCompressed &amp;&amp; !requestRange) {
+    outputStream = readStream.pipe(gzip)
+  }
+  if (
+    !stream.closed &amp;&amp;
+    !stream.destroyed &amp;&amp; 
+    !stream.writableEnded &amp;&amp; 
+    !stream.aborted
+  ) {
     stream.respond(responseHeaders)
-    gzipOptionalStream.pipe(stream)
-    gzipOptionalStream.on('error', (err) => {
+    outputStream.pipe(stream)
+  }
+  outputStream.on('error', (err) => {
+    if (
+      !stream.closed &amp;&amp;
+      !stream.destroyed &amp;&amp; 
+      !stream.writableEnded &amp;&amp; 
+      !stream.aborted
+    ) {
       stream.respond({ ':status': 500 })
       stream.end(`Internal Server Error while streaming file: ${file}`)
-    })
-    gzipOptionalStream.on('end', () => {
+    }
+  })
+  outputStream.on('end', () => {
+    if (
+      !stream.closed &amp;&amp;
+      !stream.destroyed &amp;&amp; 
+      !stream.writableEnded &amp;&amp; 
+      !stream.aborted
+    ) {
       stream.end()
-    })
-  }
+    }
+  })
 }
 </code></pre>
         </article>
@@ -133,13 +190,13 @@ module.exports = function streamFile(
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#disconnectAndExitAllWorkersWithTimeoutRecursively">disconnectAndExitAllWorkersWithTimeoutRecursively</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Nov 23 2024 03:10:43 GMT+0400 (Georgia Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Oct 28 2025 01:47:46 GMT+0400 (Georgia Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

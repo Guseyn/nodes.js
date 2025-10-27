@@ -6,7 +6,7 @@
  * for determining the appropriate `Content-Type` header for HTTP responses or processing files
  * based on their types.
  */
-module.exports = {
+export default {
   evy: 'application/envoy',
   fif: 'application/fractals',
   spl: 'application/futuresplash',

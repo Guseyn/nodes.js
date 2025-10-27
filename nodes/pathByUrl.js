@@ -1,4 +1,4 @@
-const defaultSrcMapper = require('./defaultSrcMapper')
+import defaultSrcMapper from './defaultSrcMapper.js'
 
 /**
  * Resolves the file path for a given request URL using a source mapper or a base folder.
@@ -14,7 +14,7 @@ const defaultSrcMapper = require('./defaultSrcMapper')
  * 2. Falling back to the `defaultSrcMapper` with the specified `baseFolder`.
  * 3. Using `__dirname` as the default base folder if none is specified.
  */
-module.exports = function pathByUrl(requestUrl, srcMapper, baseFolder) {
+export default function pathByUrl(requestUrl, srcMapper, baseFolder) {
   let resolvedFilePath
   if (srcMapper) {
     resolvedFilePath = srcMapper(requestUrl)

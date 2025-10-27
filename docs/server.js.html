@@ -26,19 +26,18 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const http2 = require('http2')
-const fs = require('fs')
-const domain = require('domain')
-const tls = require('tls')
-const cluster = require('cluster')
+            <pre class="prettyprint source linenums"><code>import http2 from 'http2'
+import fs from 'fs'
+import tls from 'tls'
+import cluster from 'cluster'
 
-const handleRequests = require('./handleRequests')
-const constructDomain = require('./constructDomain')
-const readSecrets = require('./readSecrets')
+import handleRequests from './handleRequests.js'
+import constructDomain from './constructDomain.js'
+import readSecrets from './readSecrets.js'
 
-const proxyServer = require('./proxyServer')
+import proxyServer from './proxyServer.js'
 
-const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
+import emulateStreamForHttp1 from './emulateStreamForHttp1.js'
 
 /**
  * Creates and configures an HTTP/2 server with optional HTTP/1.1 support and proxy setup.
@@ -51,7 +50,9 @@ const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
  * and dynamic configuration for certificates. It handles incoming requests with a unified request
  * handler and domain-based error isolation. It also supports a fallback proxy server for production environments.
  */
-module.exports = function server(app) {
+export default function server(app) {
+
+  app.config = global.config
 
   const certAndKeyExists = fs.existsSync(global.config.cert) &amp;&amp;
     fs.existsSync(global.config.key) &amp;&amp;
@@ -59,13 +60,17 @@ module.exports = function server(app) {
     fs.statSync(global.config.key).size !== 0
   const keyFile = certAndKeyExists ? global.config.key : global.config.tmpKey
   const certFile = certAndKeyExists ? global.config.cert : global.config.tmpCert
+  global.log('🔐 Checking certificate and key files...')
   
   global.config.host = global.config.host || 'localhost'
   global.config.port = global.config.port || 8004
 
+  const key = fs.readFileSync(keyFile)
+  const cert = fs.readFileSync(certFile)
+
   const server = http2.createSecureServer({
-    key: fs.readFileSync(keyFile),
-    cert: fs.readFileSync(certFile),
+    key,
+    cert,
     SNICallback: (servername, callback) => {
 
       const certAndKeyExists = fs.existsSync(global.config.cert) &amp;&amp;
@@ -89,7 +94,6 @@ module.exports = function server(app) {
     }
     const stream = emulateStreamForHttp1(req, res)
     constructDomain(server, stream).run(async () => {
-      app.config = global.config
       await handleRequests(app, stream, stream.headers)
     })
     // res.writeHead(426, {
@@ -101,14 +105,13 @@ module.exports = function server(app) {
 
   server.on('stream', (stream, headers) => {
     constructDomain(server, stream).run(async () => {
-      app.config = global.config
       await handleRequests(app, stream, headers)
     })
   })
 
   process.on('exit', () => {
     if (server.listening) {
-      global.log(`server on worker ${process.pid} is about to be closed`)
+      global.log(`🧹 Server on worker ${process.pid} is about to be closed`)
       server.close()
     }
   })
@@ -118,18 +121,18 @@ module.exports = function server(app) {
       process.exit(0)
     }
   })
-  
+
   return function serverListener() {
     server.listen({
       host: global.config.host,
       port: global.config.port
     }, () => {
-      global.log(`HTTP/2 server running at https://${global.config.host}:${global.config.port}`)
+      global.log(`🌐 HTTP/2 server running at 🔗 https://${global.config.host}:${global.config.port} in ⚙ process ${process.pid} ⚙`)
     })
     if (process.env.ENV) {
       const itIsProd = process.env.ENV.startsWith('prod')
       if (itIsProd &amp;&amp; !global.config.proxy.port) {
-        throw new Error('In prod environment you must specifiy a port for HTTP proxy server in cofing with key: `proxy: { port: &lt;value> }`')
+        throw new Error('❌ In prod environment you must specifiy a port for HTTP proxy server in cofing with key: `proxy: { port: &lt;value> }`')
       }
       if (itIsProd) {
         proxyServer({
@@ -152,13 +155,13 @@ module.exports = function server(app) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#disconnectAndExitAllWorkersWithTimeoutRecursively">disconnectAndExitAllWorkersWithTimeoutRecursively</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="RequestBodySizeExceededMaxSizeError.html">RequestBodySizeExceededMaxSizeError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addCdnToUrsl">addCdnToUrsl</a></li><li><a href="global.html#adjustPathsInHTML">adjustPathsInHTML</a></li><li><a href="global.html#adjustPathsInMarkdown">adjustPathsInMarkdown</a></li><li><a href="global.html#processUrlsInHtmlOrMd">processUrlsInHtmlOrMd</a></li><li><a href="global.html#removeCdnFromUrls">removeCdnFromUrls</a></li><li><a href="global.html#removeCdnUrlsFromHtml">removeCdnUrlsFromHtml</a></li><li><a href="global.html#removeCdnUrlsFromMarkdown">removeCdnUrlsFromMarkdown</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Nov 23 2024 03:10:43 GMT+0400 (Georgia Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Oct 28 2025 01:47:46 GMT+0400 (Georgia Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -1,4 +1,4 @@
-function safeRespond(stream, status, data) {
+export default function safeRespond(stream, status, data) {
   if (stream.destroyed || stream.closed) {
     return
   }
@@ -8,5 +8,3 @@ function safeRespond(stream, status, data) {
   })
   stream.end(JSON.stringify(data))
 }
-
-module.exports = safeRespond

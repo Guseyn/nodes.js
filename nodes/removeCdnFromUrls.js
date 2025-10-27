@@ -1,5 +1,5 @@
-const fs = require('fs').promises // Use fs.promises for async/await
-const path = require('path')
+import fs from 'fs/promises'
+import path from 'path'
 
 /**
  * Removes CDN URLs from HTML content by replacing them with relative paths.
@@ -113,4 +113,4 @@ async function removeCdnFromUrls(dirPath, cdnBaseUrl) {
   }
 }
 
-module.exports = removeCdnFromUrls
+export default removeCdnFromUrls

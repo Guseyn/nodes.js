@@ -1,15 +1,15 @@
-const http2 = require('http2')
-const fs = require('fs')
-const tls = require('tls')
-const cluster = require('cluster')
+import http2 from 'http2'
+import fs from 'fs'
+import tls from 'tls'
+import cluster from 'cluster'
 
-const handleRequests = require('./handleRequests')
-const constructDomain = require('./constructDomain')
-const readSecrets = require('./readSecrets')
+import handleRequests from './handleRequests.js'
+import constructDomain from './constructDomain.js'
+import readSecrets from './readSecrets.js'
 
-const proxyServer = require('./proxyServer')
+import proxyServer from './proxyServer.js'
 
-const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
+import emulateStreamForHttp1 from './emulateStreamForHttp1.js'
 
 /**
  * Creates and configures an HTTP/2 server with optional HTTP/1.1 support and proxy setup.
@@ -22,7 +22,7 @@ const emulateStreamForHttp1 = require('./emulateStreamForHttp1')
  * and dynamic configuration for certificates. It handles incoming requests with a unified request
  * handler and domain-based error isolation. It also supports a fallback proxy server for production environments.
  */
-module.exports = function server(app) {
+export default function server(app) {
 
   app.config = global.config
 

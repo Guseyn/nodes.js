@@ -22,7 +22,7 @@
  * This function generates a configuration object for handling static resources. The configuration can include
  * settings for file mapping, caching, compression, and CORS. It provides flexibility for custom static file handling.
  */
-module.exports = function src(urlPattern, {
+export default function src(urlPattern, {
   mapper,
   baseFolder,
   fileNotFound,

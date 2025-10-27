@@ -5,7 +5,7 @@
  * @param {Object} options.stream - The HTTP/2 or HTTP/1.x stream object associated with the request.
  * @returns {Promise<void>} Resolves after the response is sent and the stream is closed.
  */
-module.exports = async function defaultSrcNotFoundHandler({ stream }) {
+export default async function defaultSrcNotFoundHandler({ stream }) {
   const body = '404 Not Found'
   stream.respond({
     'content-type': 'text/plain; charset=utf-8',

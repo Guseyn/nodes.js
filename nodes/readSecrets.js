@@ -1,4 +1,4 @@
-const readline = require('readline').promises
+import readline from 'readline/promises'
 
 
 /**
@@ -11,7 +11,7 @@ const readline = require('readline').promises
  * This function recursively traverses a configuration object, identifies any properties with the value `<cli>`,
  * and prompts the user to provide a value for each. The provided values are then set in the configuration object.
  */
-module.exports = async function readSecrets(config) {
+export default async function readSecrets(config) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

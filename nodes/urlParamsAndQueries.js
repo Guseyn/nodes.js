@@ -24,7 +24,7 @@
  * console.log(queries); // { name: 'John' }
  * ```
  */
-module.exports = function urlParamsAndQueries(pattern, url) {
+export default function urlParamsAndQueries(pattern, url) {
   const params = {}
   const queries = {}
 

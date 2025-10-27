@@ -73,7 +73,7 @@ After you clone this repository, you can create `app` directory alongside with `
 Create `main.js` file in you application where you declare cluster api with two scripts: primary and worker scripts:
 
 ```js
-const cluster = require('./../nodes/cluster')
+import cluster from './../nodes/cluster'
 
 process.env.ENV = process.env.ENV || 'local'
 
@@ -108,7 +108,7 @@ It's worth mentioning that we need SSL files:  `./ssl/key.pem`, `./ssl/cert.pem`
 By default, you get a worker for each core on your machine. You can also specify the number of workers:
 
 ```js
-const cluster = require('./../nodes/cluster')
+import cluster from './../nodes/cluster'
 
 const numberOfWorkers = 2
 const config = JSON.parse(
@@ -127,7 +127,7 @@ Config file eventually will be avaible via `global.config` in your `primary.js` 
 You can also write all your logs to file by adding `logFile` property:
 
 ```js
-const cluster = require('./../nodes/cluster')
+import cluster from './../nodes/cluster'
 
 process.env.ENV = process.env.ENV || 'local'
 
@@ -272,7 +272,7 @@ You can also easily read whole body of your request via a function `body()` prov
 
 
 ```js
-const body = require('./../nodes/body')
+import body from './../nodes/body'
 
 const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
@@ -297,8 +297,8 @@ server(
 You can set `maxSize` for request body in `MB`:
 
 ```js
-const body = require('./../nodes/body')
-const RequestBodySizeExceededMaxSizeError = require('./../nodes/RequestBodySizeExceededMaxSizeError')
+import body from './../nodes/body'
+import RequestBodySizeExceededMaxSizeError from './../nodes/RequestBodySizeExceededMaxSizeError'
 
 const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
@@ -573,7 +573,7 @@ server(
 You can create a file `restart.js` that restarts all your servers one by one. All you need to do is just to send a signal to main process:
 
 ```js
-const fs = require('fs')
+import fs from 'fs'
 
 const primaryProcessId = fs.readFileSync('primary.pid', 'utf-8') 
 
@@ -597,7 +597,7 @@ It allows to achieve zero downtime to update your codebase (whatever happens in 
 You can also configure restart time between reloading workers:
 
 ```js
-const cluster = require('./../nodes/cluster')
+import cluster from './../nodes/cluster'
 
 process.env.ENV = process.env.ENV || 'local'
 
@@ -677,8 +677,8 @@ If you use `output.log` file, you can also see all logs of the application, sinc
 In you `primary.js` and `restart.js`, you can call a function that replaces all your relative urls with CDN urls if it's production:
 
 ```js
-const addCdnToUrls = require('./../nodes/addCdnToUrls')
-const removeCdnFromUrls = require('./../nodes/removeCdnFromUrls')
+import addCdnToUrls from './../nodes/addCdnToUrls.js'
+import removeCdnFromUrls from './../nodes/removeCdnFromUrls.js'
 
 if (process.env.ENV === 'prod') {
   addCdnToUrls('example/static', 'https://cdn.domain.com')
@@ -695,7 +695,7 @@ Async functions `addCdnToUrls` and `removeCdnFromUrls` process all HTML and MD f
 In your `primary.js` and `restart.js`, you can adjust urls with versions `?v=<hash>` in your html/md files. Hash is based on latest modified date of a file that is in the url.
 
 ```js
-const updateCacheVersionsInUrls = require('./../nodes/updateCacheVersionsInUrls')
+import updateCacheVersionsInUrls from './../nodes/updateCacheVersionsInUrls'
 
 updateCacheVersionsInUrls('example/static')
 ```

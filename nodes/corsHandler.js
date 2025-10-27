@@ -1,4 +1,4 @@
-const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
+import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
 
 /**
  * Handles CORS headers and responds to the HTTP/2 or HTTP/1.x stream with appropriate headers.
@@ -14,7 +14,7 @@ const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
  * @param {number} [options.maxAge] - The maximum time (in seconds) that the preflight request is cached.
  * @param {string} options.requestAuthority - The origin of the incoming request.
  */
-module.exports = function corsHandler({
+export default function corsHandler({
   stream, headers, useCors,
   allowedOrigins,
   allowedMethods,

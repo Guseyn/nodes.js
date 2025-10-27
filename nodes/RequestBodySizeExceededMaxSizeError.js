@@ -10,4 +10,4 @@ class RequestBodySizeExceededMaxSizeError extends Error {
   }
 }
 
-module.exports = RequestBodySizeExceededMaxSizeError
+export default RequestBodySizeExceededMaxSizeError

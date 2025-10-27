@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 const primaryProcessId = fs.readFileSync('primary.pid', 'utf-8') 
 const version = JSON.parse(fs.readFileSync('./package.json', 'utf-8')).version

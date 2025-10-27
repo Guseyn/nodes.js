@@ -1,6 +1,6 @@
-const http = require('http')
-const url = require('url')
-const fs = require('fs')
+import http from 'http'
+import url from 'url'
+import fs from 'fs'
 
 const acmeChallengeUrlPattern = /^\/\.well-known\/acme-challenge/
 
@@ -20,7 +20,7 @@ const acmeChallengeUrlPattern = /^\/\.well-known\/acme-challenge/
  *    are served from the specified `webroot`.
  * 2. Redirects all other HTTP traffic to the HTTPS endpoint on the specified port.
  */
-module.exports = function proxyServer({
+export default function proxyServer({
   proxyPort,
   host,
   port,

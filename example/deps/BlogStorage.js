@@ -54,4 +54,4 @@ class BlogStorage {
   }
 }
 
-module.exports = BlogStorage
+export default BlogStorage

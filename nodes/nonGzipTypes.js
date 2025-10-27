@@ -1,4 +1,4 @@
-module.exports = [
+export default [
   // 🎧 Audio
   'mp3',
   'wav',

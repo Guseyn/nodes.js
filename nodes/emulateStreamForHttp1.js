@@ -1,4 +1,4 @@
-const { Duplex } = require('stream')
+import { Duplex } from 'stream'
 
 /**
  * Emulates an HTTP/2-like stream for HTTP/1.1 requests and responses.
@@ -39,7 +39,7 @@ const { Duplex } = require('stream')
  * });
  * ```
  */
-module.exports = function emulateStreamForHttp1(req, res) {
+export default function emulateStreamForHttp1(req, res) {
   const stream = new Duplex({
     // Implement the readable side (data coming from req)
     read() {},

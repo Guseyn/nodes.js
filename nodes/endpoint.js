@@ -18,7 +18,7 @@
  * This function creates an endpoint configuration object for use in a server application. It supports
  * optional CORS settings and allows the URL pattern to be defined as a string or a regular expression.
  **/
-module.exports = function endpoint(urlPattern, method, handler, {
+export default function endpoint(urlPattern, method, handler, {
   useCors,
   allowedOrigins,
   allowedMethods,

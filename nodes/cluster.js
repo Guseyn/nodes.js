@@ -1,11 +1,11 @@
-const os = require('os')
-const path = require('path')
-const cluster = require('cluster')
-const fs = require('fs')
+import os from 'os'
+import path from 'path'
+import cluster from 'cluster'
+import fs from 'fs'
 
-const readSecrets = require('./readSecrets')
-const setupFileLogging = require('./setupFileLogging')
-const disconnectAndExitAllWorkersWithTimeoutRecursively = require('./disconnectAndExitAllWorkersWithTimeoutRecursively')
+import readSecrets from './readSecrets.js'
+import setupFileLogging from './setupFileLogging.js'
+import disconnectAndExitAllWorkersWithTimeoutRecursively from './disconnectAndExitAllWorkersWithTimeoutRecursively.js'
 
 /**
  * Creates and manages a cluster of worker processes.
@@ -14,7 +14,7 @@ const disconnectAndExitAllWorkersWithTimeoutRecursively = require('./disconnectA
  * @param {string} workerScript - The relative path to the worker script to be executed by worker processes.
  * @returns {Function} A function that initializes the cluster and manages worker processes.
  */
-module.exports = function clusterRunner(primaryScript, workerScript) {
+export default function clusterRunner(primaryScript, workerScript) {
   /**
    * Initializes the cluster, sets up workers, and manages their lifecycle.
    *
@@ -44,7 +44,7 @@ module.exports = function clusterRunner(primaryScript, workerScript) {
 
       const primaryScriptPath = path.join(process.cwd(), primaryScript)
       global.config = config
-      require(primaryScriptPath)
+      await import(primaryScriptPath)
       
       for (let i = 0; i < numberOfWorkers; i++) {
         const timeInBetween = 250
@@ -108,14 +108,14 @@ module.exports = function clusterRunner(primaryScript, workerScript) {
       })
 
     } else {
-      setTimeout(function() {
+      setTimeout(async function() {
         global.config = JSON.parse(process.env.CONFIG || '{}')
         global.log = console.log
         if (process.env.USE_FILE_LOGGING === 'true') {
           setupFileLogging(logFile)
         }
         const workerScriptPath = path.join(process.cwd(), workerScript)
-        require(workerScriptPath)
+        await import(workerScriptPath)
       }, 5_000);
     }
   }

@@ -1,4 +1,4 @@
-const allowedOrigin = require('./allowedOrigin')
+import allowedOrigin from './allowedOrigin.js'
 
 /**
  * Adds CORS headers to the response if needed based on the configuration provided.
@@ -13,7 +13,7 @@ const allowedOrigin = require('./allowedOrigin')
  * @param {boolean} [options.allowedCredentials] - Whether to include credentials in CORS requests.
  * @param {number} [options.maxAge] - The maximum time (in seconds) that the preflight request is cached.
  */
-module.exports = function addCorsHeadersIfNeeded(
+export default function addCorsHeadersIfNeeded(
   responseHeaders,
   requestAuthority, {
   useCors,

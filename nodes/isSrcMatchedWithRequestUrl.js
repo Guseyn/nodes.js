@@ -1,4 +1,4 @@
-const isEndpointMatchedWithRequestUrlAndMethod = require('./isEndpointMatchedWithRequestUrlAndMethod')
+import isEndpointMatchedWithRequestUrlAndMethod from './isEndpointMatchedWithRequestUrlAndMethod.js'
 
 /**
  * Checks if a static resource (`src`) matches a given request URL and HTTP method.
@@ -8,6 +8,6 @@ const isEndpointMatchedWithRequestUrlAndMethod = require('./isEndpointMatchedWit
  * @param {string} requestMethod - The HTTP method of the incoming request (e.g., `GET`, `POST`, `OPTIONS`).
  * @returns {boolean} `true` if the static resource matches the request URL and method, otherwise `false`.
  */
-module.exports = function isSrcMatchedWithRequestUrl(src, requestUrl, requestMethod) {
+export default function isSrcMatchedWithRequestUrl(src, requestUrl, requestMethod) {
   return isEndpointMatchedWithRequestUrlAndMethod(src, requestUrl, requestMethod)
 }

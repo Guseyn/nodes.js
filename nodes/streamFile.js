@@ -1,12 +1,12 @@
-const zlib = require('zlib')
-const fs = require('fs')
-const path = require('path')
+import zlib from 'zlib'
+import fs from 'fs'
+import path from 'path'
 
-const allowedOrigin = require('./allowedOrigin')
-const mimeType = require('./mimeType')
-const nonGzipTypes = require('./nonGzipTypes')
+import allowedOrigin from './allowedOrigin.js'
+import mimeType from './mimeType.js'
+import nonGzipTypes from './nonGzipTypes.js'
 
-const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
+import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
 
 /**
  * Streams a file to the client, with optional Gzip compression, caching, and CORS support.
@@ -29,7 +29,7 @@ const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
  * @param {number} [maxAge] - The maximum age (in seconds) for caching CORS preflight responses.
  * @returns {void}
  */
-module.exports = function streamFile({
+export default function streamFile({
   file,
   stream,
   requestMethod,

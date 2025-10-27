@@ -1,4 +1,4 @@
-module.exports = function getPost({
+export default async function getPost({
   stream,
   params,
   deps

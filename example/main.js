@@ -1,6 +1,6 @@
-const fs = require('fs')
+import fs from 'fs'
 
-const cluster = require('./../nodes/cluster')
+import cluster from './../nodes/cluster.js'
 
 process.env.ENV = process.env.ENV || 'local'
 

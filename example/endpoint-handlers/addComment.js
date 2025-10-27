@@ -1,6 +1,6 @@
-const body = require('./../../nodes/body')
+import body from './../../nodes/body.js'
 
-module.exports = async function addComment({
+export default async function addComment({
   stream,
   params,
   deps

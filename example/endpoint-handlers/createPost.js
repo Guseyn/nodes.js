@@ -1,6 +1,6 @@
-const body = require('./../../nodes/body')
+import body from './../../nodes/body.js'
 
-module.exports = async function createPost({
+export default async function createPost({
   stream,
   deps
 }) {

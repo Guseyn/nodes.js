@@ -1,4 +1,4 @@
-const path = require('path')
+import path from 'path'
 
 /**
  * Maps a request URL to a file path within a base folder.
@@ -17,7 +17,7 @@ const path = require('path')
  * console.log(filePath); // Outputs: '/var/www/images/photo.jpg'
  * ```
  */
-module.exports = function defaultSrcMapper(baseFolder, requestUrl) {
+export default function defaultSrcMapper(baseFolder, requestUrl) {
   const parts = requestUrl
     .split('?')[0]
     .split('/')

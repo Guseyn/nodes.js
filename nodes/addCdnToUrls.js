@@ -1,5 +1,5 @@
-const fs = require('fs').promises // Use fs.promises for async/await
-const path = require('path')
+import fs from 'fs/promises'
+import path from 'path'
 
 /**
  * Adjusts paths in HTML content by prepending a CDN base URL to relative paths.
@@ -134,4 +134,4 @@ async function addCdnToUrsl(dirPath, cdnBaseUrl) {
   }
 }
 
-module.exports = addCdnToUrsl
+export default addCdnToUrsl

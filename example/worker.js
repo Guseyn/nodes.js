@@ -1,22 +1,22 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
-const server = require('./../nodes/server')
-const app = require('./../nodes/app')
-const endpoint = require('./../nodes/endpoint')
-const src = require('./../nodes/src')
-const body = require('./../nodes/body')
+import server from './../nodes/server.js'
+import app from './../nodes/app.js'
+import endpoint from './../nodes/endpoint.js'
+import src from './../nodes/src.js'
+import body from './../nodes/body.js'
 
-const BlogStorage = require('./deps/BlogStorage')
+import BlogStorage from './deps/BlogStorage.js'
 
 const blogStorage = new BlogStorage()
 
-const {
+import {
   addComment,
   createPost,
   getPost,
   getPosts
-} = require('./endpoint-handlers/export')
+} from './endpoint-handlers/export.js'
 
 const baseFolder = path.join('example', 'static')
 

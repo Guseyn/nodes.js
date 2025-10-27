@@ -1,5 +1,5 @@
-const fs = require('fs')
-const { execSync } = require('child_process')
+import fs from 'fs'
+import { execSync } from 'child_process'
 
 /**
  * Sets up file-based logging for the application.
@@ -13,7 +13,7 @@ const { execSync } = require('child_process')
  * 2. Redirecting global logging (`global.log`) to append messages to the log file.
  * 3. Automatically closing the log file stream when the process exits.
  */
-module.exports = function setupFileLogging(logFile) {
+export default function setupFileLogging(logFile) {
   execSync(`touch ${logFile}`)
   const logFileStream = fs.createWriteStream(logFile, { flags: 'a' })
   global.log = function log(...message) {

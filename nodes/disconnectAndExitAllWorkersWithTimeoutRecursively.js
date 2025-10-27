@@ -17,7 +17,7 @@ const TIME_TO_EXIT_PROCESS = 10
  * If all workers are processed without errors, the `callback` is invoked with the `allWorkers` array.
  * If an error occurs during processing, the `callback` is invoked with the error and `null`.
  */
-function disconnectAndExitAllWorkersWithTimeoutRecursively(
+export default function disconnectAndExitAllWorkersWithTimeoutRecursively(
   allWorkers,
   currentWorkerIndex,
   restartTime,
@@ -49,5 +49,3 @@ function disconnectAndExitAllWorkersWithTimeoutRecursively(
     callback(null, allWorkers)
   }
 }
-
-module.exports = disconnectAndExitAllWorkersWithTimeoutRecursively

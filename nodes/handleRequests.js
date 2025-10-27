@@ -1,15 +1,15 @@
-const fs = require('fs')
+import fs from 'fs'
 
-const isEndpointMatchedWithRequestUrlAndMethod = require('./isEndpointMatchedWithRequestUrlAndMethod')
-const isSrcMatchedWithRequestUrl = require('./isSrcMatchedWithRequestUrl')
-const urlParamsAndQueries = require('./urlParamsAndQueries')
-const defaultSrcNotFoundHandler = require('./defaultSrcNotFoundHandler')
-const defaultSrcNotAccessibleHandler = require('./defaultSrcNotAccessibleHandler')
-const defaultEndpointNotAllowedHandler = require('./defaultEndpointNotAllowedHandler')
-const pathByUrl = require('./pathByUrl')
-const streamFile = require('./streamFile')
-const corsHandler = require('./corsHandler')
-const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
+import isEndpointMatchedWithRequestUrlAndMethod from './isEndpointMatchedWithRequestUrlAndMethod.js'
+import isSrcMatchedWithRequestUrl from './isSrcMatchedWithRequestUrl.js'
+import urlParamsAndQueries from './urlParamsAndQueries.js'
+import defaultSrcNotFoundHandler from './defaultSrcNotFoundHandler.js'
+import defaultSrcNotAccessibleHandler from './defaultSrcNotAccessibleHandler.js'
+import defaultEndpointNotAllowedHandler from './defaultEndpointNotAllowedHandler.js'
+import pathByUrl from './pathByUrl.js'
+import streamFile from './streamFile.js'
+import corsHandler from './corsHandler.js'
+import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
 
 /**
  * Handles incoming HTTP/2 or HTTP/1.x requests by matching endpoints or static resources.
@@ -26,7 +26,7 @@ const addCorsHeadersIfNeeded = require('./addCorsHeadersIfNeeded')
  * 3. Responding with appropriate error handlers for not found or inaccessible resources.
  * 4. Applying CORS headers if specified in the endpoint or static resource configuration.
  */
-module.exports = async function handleRequests(app, stream, headers) {
+export default async function handleRequests(app, stream, headers) {
   const requestUrl = headers[':path']
   const requestMethod = headers[':method']
   const requestAuthority = headers[':authority']

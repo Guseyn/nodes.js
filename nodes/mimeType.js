@@ -1,5 +1,5 @@
-const path = require('path')
-const mimeTypes = require('./mimeTypes')
+import path from 'path'
+import mimeTypes from './mimeTypes.js'
 
 /**
  * Determines the MIME type for a given file based on its extension.
@@ -12,7 +12,7 @@ const mimeTypes = require('./mimeTypes')
  * This function extracts the file extension from the provided file name or path and matches it
  * against a predefined list of MIME types. If the file extension is not recognized, it defaults to `text/plain`.
  */
-module.exports = function mimeType(file, defaultMimeType) {
+export default function mimeType(file, defaultMimeType) {
   const ext = path.extname(file)
   return mimeTypes[ext.toLowerCase().trim().split('.')[1]] || defaultMimeType || mimeTypes['txt']
 }

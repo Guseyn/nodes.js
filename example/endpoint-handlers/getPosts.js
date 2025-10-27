@@ -1,4 +1,4 @@
-module.exports = function getPosts({
+export default async function getPosts({
   stream,
   queries,
   deps

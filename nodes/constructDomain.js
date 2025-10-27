@@ -1,5 +1,5 @@
-const cluster = require('cluster')
-const domain = require('domain')
+import cluster from 'cluster'
+import domain from 'domain'
 
 const TIME_TO_EXIT_PROCESS = 30000
 
@@ -25,7 +25,7 @@ const ERROR_CODES_TO_IGNORE = [ 'EPIPE', 'ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSE
  *   - Disconnect the cluster worker (if applicable).
  *   - Exit the process after a timeout.
  */
-module.exports = function constructDomain(server, stream) {
+export default function constructDomain(server, stream) {
   const d = domain.create()
   d.on('error', (err) => {
     try {

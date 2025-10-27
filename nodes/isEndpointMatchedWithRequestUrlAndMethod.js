@@ -12,7 +12,7 @@
  * - The URL pattern.
  * - Whether the endpoint supports CORS.
  */
-module.exports = function isEndpointMatchedWithRequestUrlAndMethod(endpoint, requestUrl, requestMethod) {
+export default function isEndpointMatchedWithRequestUrlAndMethod(endpoint, requestUrl, requestMethod) {
   let match = false
   if (endpoint.method && requestMethod) {
     endpoint.method = endpoint.method.trim()

@@ -1,9 +1,9 @@
-const fs = require('fs').promises
-const path = require('path')
-const crypto = require('crypto')
+import fs from 'fs/promises'
+import path from 'path'
+import crypto from 'crypto'
 
-const defaultSrcMapper = require('./defaultSrcMapper')
-const pathByUrl = require('./pathByUrl')
+import defaultSrcMapper from './defaultSrcMapper.js'
+import pathByUrl from './pathByUrl.js'
 
 /**
  * Processes URLs in HTML or Markdown content, appending a version query parameter based on the file's hash.
@@ -165,7 +165,7 @@ async function getFileHash(fileStats) {
   return hash;
 }
 
-module.exports = async function updateCacheVersionsInUrls(folderPath, srcMapper) {
+export default async function updateCacheVersionsInUrls(folderPath, srcMapper) {
   console.log('🚀 Starting cache version update...')
   const baseFolder = folderPath
   await processDirectory(baseFolder, folderPath, srcMapper)

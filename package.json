@@ -2,6 +2,7 @@
   "name": "nodes",
   "version": "1.0.33",
   "description": "Procedural Web Framework",
+  "type": "module",
   "scripts": {
     "lint": "npx eslint",
     "docs": "npx jsdoc -c jsdoc.conf.json",

@@ -7,7 +7,7 @@
  * @param {Object} params.deps - The dependencies.
  * @returns {Object} The app configuration.
  */
-module.exports = function app({
+export default function app({
   api,
   static: staticFiles,
   indexFile,

@@ -112,11 +112,18 @@ export default function streamFile({
     return
   }
 
-  const readStream = fs.createReadStream(file, {
-    start,
-    end,
-    highWaterMark: 1024
-  })
+  let readStream
+  try {
+    readStream = fs.createReadStream(file, {
+      start,
+      end,
+      highWaterMark: 1024
+    })
+  } catch (err) {
+    stream.respond(responseHeaders)
+    stream.end()
+    return
+  }
   let outputStream = readStream
   if (useGzip && isFileCanBeCompressed && !requestRange) {
     outputStream = readStream.pipe(gzip)

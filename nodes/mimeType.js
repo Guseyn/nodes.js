@@ -1,5 +1,5 @@
 import path from 'path'
-import mimeTypes from './mimeTypes.js'
+import mimeTypes from '#nodes/mimeTypes.js'
 
 /**
  * Determines the MIME type for a given file based on its extension.

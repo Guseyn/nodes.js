@@ -2,11 +2,11 @@ import zlib from 'zlib'
 import fs from 'fs'
 import path from 'path'
 
-import allowedOrigin from './allowedOrigin.js'
-import mimeType from './mimeType.js'
-import nonGzipTypes from './nonGzipTypes.js'
+import allowedOrigin from '#nodes/allowedOrigin.js'
+import mimeType from '#nodes/mimeType.js'
+import nonGzipTypes from '#nodes/nonGzipTypes.js'
 
-import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
+import addCorsHeadersIfNeeded from '#nodes/addCorsHeadersIfNeeded.js'
 
 /**
  * Streams a file to the client, with optional Gzip compression, caching, and CORS support.

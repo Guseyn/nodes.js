@@ -14,6 +14,10 @@ import { execSync } from 'child_process'
  * 3. Automatically closing the log file stream when the process exits.
  */
 export default function setupFileLogging(logFile) {
+  if (!logFile) {
+    global.log = console.log
+    return
+  }
   execSync(`touch ${logFile}`)
   const logFileStream = fs.createWriteStream(logFile, { flags: 'a' })
   global.log = function log(...message) {

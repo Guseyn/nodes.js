@@ -1,4 +1,4 @@
-import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
+import addCorsHeadersIfNeeded from '#nodes/addCorsHeadersIfNeeded.js'
 
 /**
  * Handles CORS headers and responds to the HTTP/2 or HTTP/1.x stream with appropriate headers.

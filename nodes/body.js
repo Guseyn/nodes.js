@@ -1,4 +1,4 @@
-import RequestBodySizeExceededMaxSizeError from './RequestBodySizeExceededMaxSizeError.js'
+import RequestBodySizeExceededMaxSizeError from '#nodes/RequestBodySizeExceededMaxSizeError.js'
 
 /**
  * Collects data from a readable stream into a buffer with an optional maximum size limit.

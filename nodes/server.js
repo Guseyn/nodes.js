@@ -1,15 +1,14 @@
 import http2 from 'http2'
 import fs from 'fs'
 import tls from 'tls'
-import cluster from 'cluster'
 
-import handleRequests from './handleRequests.js'
-import constructDomain from './constructDomain.js'
-import readSecrets from './readSecrets.js'
+import handleRequests from '#nodes/handleRequests.js'
+import constructDomain from '#nodes/constructDomain.js'
+import readSecrets from '#nodes/readSecrets.js'
 
-import proxyServer from './proxyServer.js'
+import proxyServer from '#nodes/proxyServer.js'
 
-import emulateStreamForHttp1 from './emulateStreamForHttp1.js'
+import emulateStreamForHttp1 from '#nodes/emulateStreamForHttp1.js'
 
 /**
  * Creates and configures an HTTP/2 server with optional HTTP/1.1 support and proxy setup.

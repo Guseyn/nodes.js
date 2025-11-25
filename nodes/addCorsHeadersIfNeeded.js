@@ -1,4 +1,4 @@
-import allowedOrigin from './allowedOrigin.js'
+import allowedOrigin from '#nodes/allowedOrigin.js'
 
 /**
  * Adds CORS headers to the response if needed based on the configuration provided.

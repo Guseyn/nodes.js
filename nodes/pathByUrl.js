@@ -1,4 +1,4 @@
-import defaultSrcMapper from './defaultSrcMapper.js'
+import defaultSrcMapper from '#nodes/defaultSrcMapper.js'
 
 /**
  * Resolves the file path for a given request URL using a source mapper or a base folder.

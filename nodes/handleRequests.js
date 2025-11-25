@@ -1,15 +1,15 @@
 import fs from 'fs'
 
-import isEndpointMatchedWithRequestUrlAndMethod from './isEndpointMatchedWithRequestUrlAndMethod.js'
-import isSrcMatchedWithRequestUrl from './isSrcMatchedWithRequestUrl.js'
-import urlParamsAndQueries from './urlParamsAndQueries.js'
-import defaultSrcNotFoundHandler from './defaultSrcNotFoundHandler.js'
-import defaultSrcNotAccessibleHandler from './defaultSrcNotAccessibleHandler.js'
-import defaultEndpointNotAllowedHandler from './defaultEndpointNotAllowedHandler.js'
-import pathByUrl from './pathByUrl.js'
-import streamFile from './streamFile.js'
-import corsHandler from './corsHandler.js'
-import addCorsHeadersIfNeeded from './addCorsHeadersIfNeeded.js'
+import isEndpointMatchedWithRequestUrlAndMethod from '#nodes/isEndpointMatchedWithRequestUrlAndMethod.js'
+import isSrcMatchedWithRequestUrl from '#nodes/isSrcMatchedWithRequestUrl.js'
+import urlParamsAndQueries from '#nodes/urlParamsAndQueries.js'
+import defaultSrcNotFoundHandler from '#nodes/defaultSrcNotFoundHandler.js'
+import defaultSrcNotAccessibleHandler from '#nodes/defaultSrcNotAccessibleHandler.js'
+import defaultEndpointNotAllowedHandler from '#nodes/defaultEndpointNotAllowedHandler.js'
+import pathByUrl from '#nodes/pathByUrl.js'
+import streamFile from '#nodes/streamFile.js'
+import corsHandler from '#nodes/corsHandler.js'
+import addCorsHeadersIfNeeded from '#nodes/addCorsHeadersIfNeeded.js'
 
 /**
  * Handles incoming HTTP/2 or HTTP/1.x requests by matching endpoints or static resources.

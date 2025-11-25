@@ -1,4 +1,4 @@
-import isEndpointMatchedWithRequestUrlAndMethod from './isEndpointMatchedWithRequestUrlAndMethod.js'
+import isEndpointMatchedWithRequestUrlAndMethod from '#nodes/isEndpointMatchedWithRequestUrlAndMethod.js'
 
 /**
  * Checks if a static resource (`src`) matches a given request URL and HTTP method.

@@ -3,9 +3,9 @@ import path from 'path'
 import cluster from 'cluster'
 import fs from 'fs'
 
-import readSecrets from './readSecrets.js'
-import setupFileLogging from './setupFileLogging.js'
-import disconnectAndExitAllWorkersWithTimeoutRecursively from './disconnectAndExitAllWorkersWithTimeoutRecursively.js'
+import readSecrets from '#nodes/readSecrets.js'
+import setupFileLogging from '#nodes/setupFileLogging.js'
+import disconnectAndExitAllWorkersWithTimeoutRecursively from '#nodes/disconnectAndExitAllWorkersWithTimeoutRecursively.js'
 
 /**
  * Creates and manages a cluster of worker processes.
@@ -37,10 +37,7 @@ export default function clusterRunner(primaryScript, workerScript) {
 
       await readSecrets(config || {})
 
-      global.log = console.log
-      if (logFile !== undefined) {
-        setupFileLogging(logFile)
-      }
+      setupFileLogging(logFile)
 
       const primaryScriptPath = path.join(process.cwd(), primaryScript)
       global.config = config
@@ -49,7 +46,7 @@ export default function clusterRunner(primaryScript, workerScript) {
       for (let i = 0; i < numberOfWorkers; i++) {
         const timeInBetween = 250
         setTimeout(() => {
-          cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })
+          cluster.fork({ CONFIG: JSON.stringify(config) })
         }, i * timeInBetween)
       }
 
@@ -68,7 +65,7 @@ export default function clusterRunner(primaryScript, workerScript) {
           }
           lastRestart = now
           global.log(`♻️ worker ${worker.process.pid} died (${signal || code}). restarting...`)
-          cluster.fork({ CONFIG: JSON.stringify(config), USE_FILE_LOGGING: logFile !== undefined })  
+          cluster.fork({ CONFIG: JSON.stringify(config) })  
         }
       })
 
@@ -110,10 +107,7 @@ export default function clusterRunner(primaryScript, workerScript) {
     } else {
       setTimeout(async function() {
         global.config = JSON.parse(process.env.CONFIG || '{}')
-        global.log = console.log
-        if (process.env.USE_FILE_LOGGING === 'true') {
-          setupFileLogging(logFile)
-        }
+        setupFileLogging(logFile)
         const workerScriptPath = path.join(process.cwd(), workerScript)
         await import(workerScriptPath)
       }, 5_000);

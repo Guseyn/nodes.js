@@ -3,7 +3,6 @@ import fs from 'fs'
 import tls from 'tls'
 
 import handleRequests from '#nodes/handleRequests.js'
-import constructDomain from '#nodes/constructDomain.js'
 import readSecrets from '#nodes/readSecrets.js'
 
 import proxyServer from '#nodes/proxyServer.js'
@@ -58,15 +57,21 @@ export default function server(app) {
       callback(null, ctx)
     },
     allowHTTP1: true
-  }, (req, res) => {
+  }, async (req, res) => {
     if (req.httpVersion === '2.0') {
       // we can go to server.on('stream') event
       return
     }
     const stream = emulateStreamForHttp1(req, res)
-    constructDomain(server, stream).run(async () => {
+    try {
       await handleRequests(app, stream, stream.headers)
-    })
+    } catch (err) {
+      global.log('❌ Handler crashed:', err)
+      if (!stream.destroyed) {
+        stream.respond({ ':status': 500 })
+        stream.end('Internal error')
+      }
+    }
     // res.writeHead(426, {
     //   'upgrade': 'HTTP/2.0',
     //   'content-type': 'text/plain'
@@ -74,10 +79,16 @@ export default function server(app) {
     // res.end('Please upgrade to HTTP/2')
   })
 
-  server.on('stream', (stream, headers) => {
-    constructDomain(server, stream).run(async () => {
+  server.on('stream', async (stream, headers) => {
+    try {
       await handleRequests(app, stream, headers)
-    })
+    } catch (err) {
+      global.log('❌ Handler crashed:', err)
+      if (!stream.destroyed) {
+        stream.respond({ ':status': 500 })
+        stream.end('Internal error')
+      }
+    }
   })
 
   process.on('exit', () => {

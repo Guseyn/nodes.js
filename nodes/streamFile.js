@@ -87,9 +87,9 @@ export default function streamFile({
       responseHeaders['content-length'] = fileSize
     }
   }
-  if (useCache) {
-    responseHeaders['etag'] = lastModified
-  }
+  // if (useCache) {
+  //   responseHeaders['etag'] = lastModified
+  // }
   if (cacheControl) {
     responseHeaders['cache-control'] = cacheControl
   }

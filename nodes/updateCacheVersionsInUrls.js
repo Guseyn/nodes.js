@@ -24,7 +24,7 @@ async function getFileHash(filePath) {
  *  - Finds URLs in <img>, <script>, <link>, etc.
  *  - Appends or updates ?v=<hash> based on file content checksum
  **********************************************************************/
-async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
+async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap) {
   // ─────────────────────────────────────────────────────────────
   // Step 1: Skip code blocks enclosed by triple backticks
   // ─────────────────────────────────────────────────────────────
@@ -66,10 +66,43 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Step 3: Process URLs in HTML or Markdown
+  // Step 3: Handle <script type="module"> blocks
   // ─────────────────────────────────────────────────────────────
-  global.log('🔗 Step 3: Processing URLs in HTML or Markdown...')
-  const regex = /<(img|script|e-html|e-json|e-json|e-svg|e-markdown|template\s+is="e-json"|template\s+is="e-wrapper"|link(?:\s+rel="preload")?)\s+[^>]*(src|href|data-src)="([^"]+)"/g
+  global.log('📝 Step 3: Processing <script type="module"> blocks...')
+  const moduleRegex = /^([ \t]*)<script\s+type=["']module["'][^>]*>([\s\S]*?)<\/script>/gim
+  const importModuleRegex = /import(\s+)['"]([\s\S]*.js\?v=(\S+))['"]/i
+  let moduleMatch
+  while ((moduleMatch = moduleRegex.exec(content)) !== null) {
+    const outerIndent = moduleMatch[1] || ''
+    const fullBlock = moduleMatch[0]
+    const moduleCodeContent = moduleMatch[2]
+    try {
+      const lines = moduleCodeContent.split('\n')
+      for (let i = 0; i < lines.length; i++) {
+        const importMatch = importModuleRegex.exec(lines[i])
+        if (importMatch === null) {
+          continue
+        }
+        const importUrl = importMatch[2]
+        const resolved = resolveImport(importUrl, baseFolder, srcMapper, importMap)
+        const hash = await getFileHash(resolved)        
+        const newImportUrl = urlWithBustedVersion(importUrl, hash)
+        lines[i] = lines[i].replace(importUrl, newImportUrl)
+        global.log(`✨ Versioned URL: ${importUrl} → ${newImportUrl}`)
+      }
+      const newModuleCodeContent = lines.join('\n')
+      const newBlock = `${outerIndent}<script type="module">${newModuleCodeContent}</script>`.replaceAll('\n\n', '\n')
+      content = content.replace(fullBlock, newBlock)
+    } catch (err) {
+      global.log(`⚠ Failed to parse script with type "module": ${err.message}`)
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Step 4: Process URLs in HTML or Markdown
+  // ─────────────────────────────────────────────────────────────
+  global.log('🔗 Step 4: Processing URLs in HTML or Markdown...')
+  const regex = /<(img|script|e-html|e-json|e-svg|e-markdown|template\s+is="e-json-map"|template\s+is="e-wrapper"|link(?:\s+rel="preload")?)\s+[^>]*(src|href|data-src)="([^"]+)"/g
   let match
   
   while ((match = regex.exec(content)) !== null) {
@@ -78,7 +111,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
     let url = match[3]
 
     const toBeProcessed = url &&
-      !/template\s+is="e-json"/.test(tagName) &&
+      !/template\s+is="e-json-map"/.test(tagName) &&
       tagName !== 'e-json' &&
       tagName !== 'a' &&
       !url.startsWith('http') &&
@@ -92,9 +125,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
       const filePath = pathByUrl(url, srcMapper, baseFolder)
       try {
         const fileHash = await getFileHash(filePath)
-        const versionedUrl = url.includes('?v=')
-          ? url.replace(/(\?v=).*$/, `?v=${fileHash}`)
-          : `${url}?v=${fileHash}`
+        const versionedUrl = urlWithBustedVersion(url, fileHash)
 
         global.log(`✨ Versioned URL: ${url} → ${versionedUrl}`)
 
@@ -108,14 +139,20 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // Step 4: Restore skipped code blocks
+  // Step 5: Restore skipped code blocks
   // ─────────────────────────────────────────────────────────────
-  global.log('🔄 Step 4: Restoring skipped code blocks...')
+  global.log('🔄 Step 5: Restoring skipped code blocks...')
   codeBlocks.forEach((codeBlock, index) => {
     content = content.replace(`___CODE_BLOCK_${index}___`, codeBlock)
   })
 
   return content
+}
+
+function urlWithBustedVersion(url, newVersion) {
+  return url.includes('?v=')
+      ? url.replace(/(\?v=)[^&#]*/, `$1${newVersion}`)
+      : `${url}${url.includes('?') ? '&' : '?'}v=${newVersion}`
 }
 
 /**********************************************************************
@@ -126,7 +163,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper) {
  *  - Applies versioning updates
  *  - Recurses into subdirectories
  **********************************************************************/
-async function processDirectoryWithHTMLAndMDFiles(baseFolder, folderPath, srcMapper) {
+async function processDirectoryWithHTMLAndMDFiles(baseFolder, folderPath, srcMapper, importMap) {
   global.log(`📂 Processing directory: ${folderPath}`)
   const files = await fs.readdir(folderPath)
   const htmlFiles = files.filter(file => file.endsWith('.html') || file.endsWith('.md'))
@@ -135,7 +172,8 @@ async function processDirectoryWithHTMLAndMDFiles(baseFolder, folderPath, srcMap
   for (const file of htmlFiles) {
     const filePath = path.join(folderPath, file)
     let content = await fs.readFile(filePath, 'utf-8')
-    content = await processUrlsInHtmlOrMd(content, baseFolder, srcMapper)
+    global.log(`-> Updating: ${file}`)
+    content = await processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap)
     await fs.writeFile(filePath, content, 'utf-8')
     global.log(`✅ Updated: ${file}`)
   }
@@ -146,7 +184,7 @@ async function processDirectoryWithHTMLAndMDFiles(baseFolder, folderPath, srcMap
     const stats = await fs.stat(filePath)
     if (stats.isDirectory()) {
       global.log(`📁 Entering subdirectory: ${filePath}`)
-      await processDirectoryWithHTMLAndMDFiles(baseFolder, filePath, srcMapper)
+      await processDirectoryWithHTMLAndMDFiles(baseFolder, filePath, srcMapper, importMap)
     }
   }
 }
@@ -183,14 +221,14 @@ async function maybeVersionUrl(url, baseFolder, srcMapper) {
   ) {
     return url
   }
-  if (url.endsWith('/')) return url
+  if (url.endsWith('/')) {
+    return url
+  }
 
   const filePath = pathByUrl(url, srcMapper, baseFolder)
   try {
     const fileHash = await getFileHash(filePath)
-    return url.includes('?v=')
-      ? url.replace(/(\?v=).*$/, `?v=${fileHash}`)
-      : `${url}?v=${fileHash}`
+    return urlWithBustedVersion(url, fileHash)
   } catch (err) {
     global.log(`❌ File not found for ${url}:`, err.message)
     return url
@@ -213,7 +251,9 @@ function resolveImport(spec, baseFolder, srcMapper, importMap) {
   if (spec.startsWith('http') || spec.startsWith('data:') || spec.includes('${')) {
     return null
   }
-  if (!spec.startsWith('.') && !spec.startsWith('/') && !spec.startsWith('../') && !spec.startsWith('./')) return null
+  if (!spec.startsWith('.') && !spec.startsWith('/') && !spec.startsWith('../') && !spec.startsWith('./')) {
+    return null
+  }
   return pathByUrl(spec, srcMapper, baseFolder)
 }
 
@@ -227,11 +267,10 @@ function resolveImport(spec, baseFolder, srcMapper, importMap) {
  *   hash: string | null
  * }
  **********************************************************************/
-async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, visited = new Set()) {
+async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, visited = new Map()) {
   if (visited.has(filePath)) {
-    return null
+    return visited.get(filePath)
   }
-  visited.add(filePath)
 
   let content
   try {
@@ -240,6 +279,9 @@ async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, v
     global.log(`❌ Cannot read file: ${filePath}`)
     return null
   }
+
+  const node = { filePath, imports: [], hash: null }
+  visited.set(filePath, node)
 
   const importRegexes = [
     /import\s+[^'"]*?from\s+(['"])([^'"]+)\1/g,
@@ -257,7 +299,6 @@ async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, v
     }
   }
 
-  const imports = []
   for (const spec of specs) {
     const resolved = resolveImport(spec, baseFolder, srcMapper, importMap)
     if (!resolved) {
@@ -265,11 +306,11 @@ async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, v
     }
     const child = await buildDependencyTree(resolved, baseFolder, srcMapper, importMap, visited)
     if (child) {
-      imports.push({ spec, node: child })
+      node.imports.push({ spec, node: child })
     }
   }
 
-  return { filePath, imports, hash: null }
+  return node
 }
 
 
@@ -295,11 +336,17 @@ async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, v
  *     └── E
  *  → compute C,D,E → update B → compute B → update A → compute A
  **********************************************************************/
-async function computeHashesBottomUp(node) {
+async function computeHashesBottomUp(node, visited = new Set()) {
   if (!node) {
     // 🧩 Base case: empty node, stop recursion
     return null
   }
+
+  // Avoid revisiting nodes or infinite loops
+  if (visited.has(node.filePath)) {
+    return node
+  }
+  visited.add(node.filePath)
 
   // ─────────────────────────────────────────────────────────────
   // 1️⃣ Read the current file content
@@ -313,7 +360,7 @@ async function computeHashesBottomUp(node) {
   for (const imp of node.imports) {
     const child = await computeHashesBottomUp(imp.node)
     if (!child) {
-      global.warn(`⚠️  Skipped missing child import for ${imp.spec}`)
+      global.log(`⚠️  Skipped missing child import for ${imp.spec}`)
       continue
     }
 
@@ -355,7 +402,6 @@ async function computeHashesBottomUp(node) {
   return node
 }
 
-
 /**********************************************************************
  * updateCacheVersionsInUrls()
  * ---------------------------------------------------------------
@@ -374,6 +420,6 @@ export default async function updateCacheVersionsInUrls(folderPath, srcMapper) {
     await processJSEntryFile(jsEntry, baseFolder, srcMapper, importMap)
   }
 
-  await processDirectoryWithHTMLAndMDFiles(baseFolder, folderPath, srcMapper)  
+  await processDirectoryWithHTMLAndMDFiles(baseFolder, folderPath, srcMapper, importMap)  
   global.log('🏁 Finished cache version update!')
 }

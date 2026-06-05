@@ -1,16 +1,5 @@
-# Release 1.0.34
+# Release 1.0.35
 
-4277078 update version in package.json to 1.0.34 (guseyn, Sun Nov 9 18:20:04 2025 +0400)
-ee42733 update from lmt (guseyn, Sun Nov 9 18:19:52 2025 +0400)
-82398f9 esm import syste, (guseyn, Tue Oct 28 01:55:30 2025 +0400)
-b400048 update (guseyn, Sun Oct 26 19:53:10 2025 +0400)
-e94b564 update (guseyn, Sun Oct 26 18:48:31 2025 +0400)
-97d9b9e update (guseyn, Sun Oct 26 18:39:42 2025 +0400)
-580ca92 update (guseyn, Sun Oct 26 18:33:04 2025 +0400)
-fb3d39d update (guseyn, Sat Oct 11 23:41:02 2025 +0400)
-499efdc Merge branch 'main' of github.com:Guseyn/nodes.js (guseyn, Wed Dec 11 13:45:58 2024 +0400)
-1d41fa9 udpate example (guseyn, Wed Dec 11 13:45:36 2024 +0400)
-4b903a5 Update README.md (Guseyn Ismayylov, Mon Nov 25 09:34:23 2024 +0400)
-772afce fix updateCacheVersionsInUrls (guseyn, Sat Nov 23 13:01:26 2024 +0400)
-de81331 fix errors in readme, add jsdocs (guseyn, Sat Nov 23 03:15:20 2024 +0400)
-43347e7 update release in readme (guseyn, Thu Nov 21 17:38:51 2024 +0400)
+4a2473c update version in package.json to 1.0.35 (guseyn, Fri Jun 5 10:17:23 2026 +0400)
+c5f144c update (guseyn, Mon May 25 12:49:01 2026 +0400)
+e246940 update (guseyn, Tue Nov 25 20:54:11 2025 +0400)

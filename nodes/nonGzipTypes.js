@@ -1,5 +1,5 @@
 export default [
-  // 🎧 Audio
+  // Audio
   'mp3',
   'wav',
   'aif',
@@ -14,7 +14,7 @@ export default [
   'ra',
   'ram',
 
-  // 🎥 Video
+  // Video
   'mp4',
   'mp2',
   'mpa',

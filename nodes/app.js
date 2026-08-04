@@ -1,11 +1,7 @@
 /**
  * Initializes the app.
- * @param {Object} params - The parameters for the app.
- * @param {Object} params.api - The API configuration.
- * @param {Object} params.static - The static files configuration.
- * @param {string} params.indexFile - The path to the index file.
- * @param {Object} params.deps - The dependencies.
- * @returns {Object} The app configuration.
+ * @param {import('./types.js').NodesAppParams} params
+ * @returns {import('./types.js').NodesApp}
  */
 export default function app({
   api,

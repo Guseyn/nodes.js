@@ -2,32 +2,13 @@ import zlib from 'zlib'
 import fs from 'fs'
 import path from 'path'
 
-import allowedOrigin from '#nodes/allowedOrigin.js'
 import mimeType from '#nodes/mimeType.js'
 import nonGzipTypes from '#nodes/nonGzipTypes.js'
 
 import addCorsHeadersIfNeeded from '#nodes/addCorsHeadersIfNeeded.js'
 
 /**
- * Streams a file to the client, with optional Gzip compression, caching, and CORS support.
- *
- * @param {string} file - The path to the file to be streamed.
- * @param {Object} stream - The HTTP/2 stream object.
- * @param {string} requestMethod - The HTTP method of the request (e.g., `GET`, `OPTIONS`).
- * @param {string} requestAuthority - The request's authority (e.g., host and port).
- * @param {Object} stats - File statistics, such as size, obtained using `fs.stat`.
- * @param {number} status - The HTTP status code to respond with (e.g., 200, 404).
- * @param {boolean} useGzip - Whether to enable Gzip compression for the file.
- * @param {boolean} useCache - Whether to enable caching for the file.
- * @param {string} [cacheControl] - The `Cache-Control` header value.
- * @param {string} lastModified - The last modified timestamp of the file.
- * @param {boolean} useCors - Whether to enable CORS for the response.
- * @param {string[]} [allowedOrigins] - A list of allowed origins for CORS.
- * @param {string[]} [allowedMethods] - A list of allowed HTTP methods for CORS.
- * @param {string[]} [allowedHeaders] - A list of allowed HTTP headers for CORS.
- * @param {boolean} [allowedCredentials] - Whether to allow credentials in CORS requests.
- * @param {number} [maxAge] - The maximum age (in seconds) for caching CORS preflight responses.
- * @returns {void}
+ * @param {import('./types.js').StreamFileOptions} options
  */
 export default function streamFile({
   file,
@@ -49,11 +30,12 @@ export default function streamFile({
   maxAge
 }) {
   const gzip = zlib.createGzip()
-  const mappedMimeType = mimeType(file)
+  const mappedMimeType = mimeType(file, 'text/plain')
+  /** @type {import('./types.js').ResponseHeaders} */
   const responseHeaders = {
     'content-type': mappedMimeType
   }
-  const ext = path.extname(file).toLowerCase().trim().split('.')[1]
+  const ext = path.extname(file).toLowerCase().trim().slice(1)
   const isFileCanBeCompressed = nonGzipTypes.indexOf(ext) === -1
 
   const fileSize = stats.size
@@ -124,9 +106,9 @@ export default function streamFile({
     stream.end()
     return
   }
-  let outputStream = readStream
+  let outputStream = /** @type {import('node:stream').Readable} */ (readStream)
   if (useGzip && isFileCanBeCompressed && !requestRange) {
-    outputStream = readStream.pipe(gzip)
+    outputStream = /** @type {import('node:stream').Readable} */ (readStream.pipe(gzip))
   }
   if (
     !stream.closed &&
@@ -135,7 +117,7 @@ export default function streamFile({
     !stream.aborted
   ) {
     stream.respond(responseHeaders)
-    outputStream.pipe(stream)
+    outputStream.pipe(/** @type {import('node:stream').Writable} */ (/** @type {unknown} */ (stream)))
   }
   outputStream.on('error', (err) => {
     if (

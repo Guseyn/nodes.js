@@ -6,7 +6,8 @@
  * for determining the appropriate `Content-Type` header for HTTP responses or processing files
  * based on their types.
  */
-export default {
+/** @type {import('./types.js').MimeTypeMap} */
+const mimeTypes = {
   evy: 'application/envoy',
   fif: 'application/fractals',
   spl: 'application/futuresplash',
@@ -210,3 +211,5 @@ export default {
   xaf: 'x-world/x-vrml',
   xof: 'x-world/x-vrml'
 }
+
+export default /** @type {import('./types.js').MimeTypeMap} */ (mimeTypes)

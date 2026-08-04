@@ -1,42 +1,32 @@
 import http from 'http'
 import url from 'url'
 import fs from 'fs'
+import runtime from '#nodes/runtime.js'
 
 const acmeChallengeUrlPattern = /^\/\.well-known\/acme-challenge/
 
 /**
- * Creates an HTTP proxy server that handles ACME challenges and redirects other traffic to HTTPS.
- *
- * @param {Object} options - Configuration options for the proxy server.
- * @param {number} options.proxyPort - The port on which the proxy server will listen.
- * @param {string} options.host - The hostname or IP address for the proxy server.
- * @param {number} options.port - The port for redirecting traffic to HTTPS.
- * @param {string} options.webroot - The root directory for serving ACME challenge files.
- * @returns {Function} A function that starts the proxy server.
- *
- * @description
- * This proxy server performs two primary functions:
- * 1. Handles ACME challenge requests for HTTPS certificate validation. The ACME challenge files
- *    are served from the specified `webroot`.
- * 2. Redirects all other HTTP traffic to the HTTPS endpoint on the specified port.
+ * @param {import('./types.js').ProxyServerOptions} options
+ * @returns {function(): void}
  */
 export default function proxyServer({
   proxyPort,
   host,
-  port,
-  webroot
+  port
 }) {
   const server = http.createServer((req, res) => {
-    let reqUrl = req.url
-    if (req.url === '/') {
+    const requestUrl = req.url || ''
+    let reqUrl = requestUrl
+    if (requestUrl === '/') {
       reqUrl = ''
     }
     const reqHost = req.headers.host
     // Acme Challenge for HTTPS setup 
-    if (acmeChallengeUrlPattern.test(req.url)) {
+    if (acmeChallengeUrlPattern.test(requestUrl)) {
       try {
-        const parsedUrl = url.parse(req.url, true)
-        const challengeFile = `${global.config.webroot}/${parsedUrl.pathname}`
+        const parsedUrl = url.parse(requestUrl, true)
+        const pathname = parsedUrl.pathname || ''
+        const challengeFile = `${runtime.config.webroot}/${pathname}`
         if (!fs.existsSync(challengeFile)) {
           console.log(challengeFile)
           res.writeHead(404, {
@@ -72,7 +62,7 @@ export default function proxyServer({
       host: host,
       port: proxyPort
     }, () => {
-      global.log(`HTTP proxy server running at http://${host}:${proxyPort}`)
+      runtime.log(`HTTP proxy server running at http://${host}:${proxyPort}`)
     })
   }
 }

@@ -1,11 +1,14 @@
 import path from 'path'
-import mimeTypes from '#nodes/mimeTypes.js'
+import mimeTypesImport from '#nodes/mimeTypes.js'
+
+/** @type {import('#nodes/types.js').MimeTypeMap} */
+const mimeTypes = mimeTypesImport
 
 /**
  * Determines the MIME type for a given file based on its extension.
  *
  * @param {string} file - The file name or path whose MIME type needs to be determined.
- * @param {defaultMimeType} mimeTpye - The defaul mime type if it cannot be parsed or recognized from the path
+ * @param {string} defaultMimeType
  * @returns {string} The corresponding MIME type if recognized; otherwise, the default MIME type (`text/plain`).
  *
  * @description
@@ -13,6 +16,16 @@ import mimeTypes from '#nodes/mimeTypes.js'
  * against a predefined list of MIME types. If the file extension is not recognized, it defaults to `text/plain`.
  */
 export default function mimeType(file, defaultMimeType) {
+  if (!file || !defaultMimeType) {
+    return mimeTypes['txt']
+  }
   const ext = path.extname(file)
-  return mimeTypes[ext.toLowerCase().trim().split('.')[1]] || defaultMimeType || mimeTypes['txt']
+  if (!ext) {
+    return mimeTypes['txt']
+  }
+  const extension = ext.toLowerCase().trim().slice(1)
+  if (!extension) {
+    return defaultMimeType || mimeTypes['txt']
+  }
+  return mimeTypes[extension] || defaultMimeType || mimeTypes['txt']
 }

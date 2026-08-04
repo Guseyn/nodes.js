@@ -9,7 +9,7 @@ export default function allowedOrigin(allowedOrigins, requestAuthority) {
   if (allowedOrigins === '*') {
     return '*'
   }
-  if (requestAuthority) {
+  if (requestAuthority && allowedOrigins) {
     if (allowedOrigins.indexOf(requestAuthority) !== -1) {
       return `https://${requestAuthority}`
     }

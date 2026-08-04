@@ -14,23 +14,16 @@ import addCorsHeadersIfNeeded from '#nodes/addCorsHeadersIfNeeded.js'
 /**
  * Handles incoming HTTP/2 or HTTP/1.x requests by matching endpoints or static resources.
  *
- * @param {Object} app - The application configuration object.
- * @param {Object} stream - The HTTP/2 or HTTP/1.x stream object associated with the request.
- * @param {Object} headers - The headers object of the incoming request.
- * @returns {Promise<void>} A promise that resolves when the request is fully handled.
- *
- * @description
- * This function processes incoming requests by:
- * 1. Checking if the request matches a defined API endpoint.
- * 2. Serving static resources if a match is found.
- * 3. Responding with appropriate error handlers for not found or inaccessible resources.
- * 4. Applying CORS headers if specified in the endpoint or static resource configuration.
+ * @param {import('./types.js').NodesApp} app
+ * @param {import('./types.js').NodesRequestStream} stream
+ * @param {import('./types.js').RequestHeaders} headers
+ * @returns {Promise<void>}
  */
 export default async function handleRequests(app, stream, headers) {
-  const requestUrl = headers[':path']
-  const requestMethod = headers[':method']
-  const requestAuthority = headers[':authority']
-  const requestRange = headers['range']
+  const requestUrl = String(headers[':path'] || '')
+  const requestMethod = String(headers[':method'] || '')
+  const requestAuthority = String(headers[':authority'] || '')
+  const requestRange = headers['range'] ? String(headers['range']) : undefined
 
   const allEndpointsInApp = app.api || []
   const allSrcInApp = app.static || []
@@ -73,14 +66,16 @@ export default async function handleRequests(app, stream, headers) {
       if (err) {
         throw err
       }
-      streamFile({
-        file: app.indexFile,
-        stream,
-        requestMethod,
-        requestAuthority,
-        stats,
-        status: 200
-      })
+      if (app.indexFile) {
+        streamFile({
+          file: app.indexFile,
+          stream,
+          requestMethod,
+          requestAuthority,
+          stats,
+          status: 200
+        })
+      }
     })
     return
   }
@@ -93,10 +88,10 @@ export default async function handleRequests(app, stream, headers) {
     const { params, queries } = urlParamsAndQueries(matchedEndpoint.urlPattern, requestUrl)
     const useCors = matchedEndpoint.useCors
     const allowedOrigins = matchedEndpoint.allowedOrigins
-    const allowedMethods = matchedEndpoint.allowedOrigins
-    const allowedHeaders = matchedEndpoint.allowedOrigins
-    const allowedCredentials = matchedEndpoint.allowedOrigins
-    const maxAge = matchedEndpoint.allowedOrigins
+    const allowedMethods = matchedEndpoint.allowedMethods
+    const allowedHeaders = matchedEndpoint.allowedHeaders
+    const allowedCredentials = matchedEndpoint.allowedCredentials
+    const maxAge = matchedEndpoint.maxAge
     if (requestMethod === 'OPTIONS' && (useCors || allowedOrigins)) {
       corsHandler({
         stream, headers, useCors,
@@ -195,7 +190,7 @@ export default async function handleRequests(app, stream, headers) {
                 stream
               })
             } else {
-              fs.stats(fileNotAccessible, async (err, stats) => {
+              fs.stat(fileNotAccessible, async (err, stats) => {
                 if (err) {
                   if (err.code === 'ENOENT') {
                     await defaultSrcNotFoundHandler({
@@ -210,7 +205,7 @@ export default async function handleRequests(app, stream, headers) {
                   const useGzip = matchedSrc.useGzip || false
                   const useCache = matchedSrc.useCache || false
                   const useCors = matchedSrc.useCors || false
-                  const cacheControl = matchedSrc.cacheControl || false
+                  const cacheControl = matchedSrc.cacheControl || undefined
                   const lastModified = stats.mtime.toUTCString()
                   const allowedOrigins = matchedSrc.allowedOrigins || []
                   const allowedMethods = matchedSrc.allowedMethods || []

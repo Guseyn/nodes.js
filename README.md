@@ -755,6 +755,10 @@ It works in combination with `cache-control`:
 
 ```js
 // worker.js
+import server from '#nodes/server.js'
+import app from '#nodes/app.js'
+import src from '#nodes/src.js'
+
 const baseFolder = 'example/static'
 
 const options = {

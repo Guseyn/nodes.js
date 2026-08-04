@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-import cluster from './../nodes/cluster.js'
+import cluster from '#nodes/cluster.js'
 
 process.env.ENV = process.env.ENV || 'local'
 

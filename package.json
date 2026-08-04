@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "npx eslint",
     "docs": "npx jsdoc -c jsdoc.conf.json",
+    "types:nodes": "tsc -p nodes/jsconfig.json --noEmit",
     "example:start": "node example/main.js",
     "example:restart": "node example/restart.js",
     "example:local:start": "ENV=local npm run example:start",
@@ -19,10 +20,14 @@
   },
   "author": "guseyn",
   "license": "MIT",
+  "imports": {
+    "#nodes/*": "./nodes/*"
+  },
   "devDependencies": {
     "eslint": "^8.30.0",
     "eslint-plugin-node": "^11.1.0",
     "jsdoc": "^4.0.4",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "typescript": "^5.9.2"
   }
 }

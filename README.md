@@ -1,6 +1,6 @@
 ![nodes.js](logo.svg)
 
-**1.0.33**
+**1.0.36**
 
 [![nodes.js CI](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.ci.yml/badge.svg?branch=main)](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.ci.yml)
 
@@ -10,6 +10,7 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 
 1. [Why do we need another framework for Node.js?](#why-do-we-need-another-framework-for-nodejs)
 1. [How it works](#how-it-works)
+1. [Import map (`#nodes/*`)](#import-map-nodes)
 1. [Setting up main.js](#setting-up-mainjs)
    - [Configuration](#configuration)
    - [Log File](#log-file)
@@ -38,6 +39,7 @@ NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero depen
 1. [Cache versions in Urls](#cache-versions-in-urls)
 1. [Let's encrypt integration](#lets-encrypt-integration)
 1. [Real Production Example](#real-production-example)
+1. [JSDoc types (IDE support)](#jsdoc-types-ide-support)
 1. [cloc (nodes folder)](#cloc-nodes-folder)
 1. [Next Goals](#next-goals)
 
@@ -66,14 +68,44 @@ This is my wish list:
 
 ## How it works
 
-After you clone this repository, you can create `app` directory alongside with `nodes` folder in the root. 
+After you clone this repository, you can create an `app` directory alongside the `nodes` folder in the root.
+
+## Import map (`#nodes/*`)
+
+Add a Node.js [subpath import map](https://nodejs.org/api/packages.html#subpath-imports) to your app's `package.json` (repo root if you vendor `nodes/` there):
+
+```json
+{
+  "type": "module",
+  "imports": {
+    "#nodes/*": "./nodes/*"
+  }
+}
+```
+
+Then import framework modules by alias instead of long relative paths:
+
+```js
+import cluster from '#nodes/cluster.js'
+import server from '#nodes/server.js'
+import app from '#nodes/app.js'
+import endpoint from '#nodes/endpoint.js'
+import src from '#nodes/src.js'
+import body from '#nodes/body.js'
+import runtime from '#nodes/runtime.js'
+```
+
+Always include the `.js` extension. The alias works at runtime (Node resolves `imports`) and in JSDoc (e.g. `import('#nodes/types.js').NodesApp`) when `nodes/jsconfig.json` maps the same prefix.
+
+This repository's `package.json` and `example/` app use `#nodes/*` imports.
 
 ## Setting up main.js
 
 Create `main.js` file in you application where you declare cluster api with two scripts: primary and worker scripts:
 
 ```js
-import cluster from './../nodes/cluster'
+import fs from 'fs'
+import cluster from '#nodes/cluster.js'
 
 process.env.ENV = process.env.ENV || 'local'
 
@@ -108,7 +140,8 @@ It's worth mentioning that we need SSL files:  `./ssl/key.pem`, `./ssl/cert.pem`
 By default, you get a worker for each core on your machine. You can also specify the number of workers:
 
 ```js
-import cluster from './../nodes/cluster'
+import fs from 'fs'
+import cluster from '#nodes/cluster.js'
 
 const numberOfWorkers = 2
 const config = JSON.parse(
@@ -120,14 +153,15 @@ const config = JSON.parse(
 cluster('example/primary.js', 'example/worker.js')({ numberOfWorkers, config })
 ```
 
-Config file eventually will be avaible via `global.config` in your `primary.js` and `worker.js`.
+Config file is assigned to `runtime.config` (see [JSDoc types](#jsdoc-types-ide-support)) before your `primary.js` and `worker.js` run.
 
 ### Log File
 
 You can also write all your logs to file by adding `logFile` property:
 
 ```js
-import cluster from './../nodes/cluster'
+import fs from 'fs'
+import cluster from '#nodes/cluster.js'
 
 process.env.ENV = process.env.ENV || 'local'
 
@@ -149,7 +183,7 @@ Logs in the file have following format:
 2024-11-09T15:21:03.885Z - worker (pid:35120) - HTTP/2 server running at https://1.0.24.0:8004
 ```
 
-Use `global.log()` function to write logs to file. By default, this function writes to console.
+Use `runtime.log()` to write logs. By default it uses `console.log`; with `logFile` set, logs go to the file (see [Log File](#log-file)).
 
 ## Setting up primary.js
 
@@ -158,9 +192,10 @@ Your `primary.js` can be used for running other processes, if you need something
 ```js
 // primary.js
 
-// console.log('this is executed in primary process')
+import runtime from '#nodes/runtime.js'
 
-// we can use global.config, global.log()
+// runtime.config and runtime.log are available after cluster starts
+// runtime.log(`\x1b[33mStarting primary process\x1b[0m`)
 ```
 
 ## Setting up worker.js
@@ -170,7 +205,11 @@ Your `worker.js` creates a server applicaiton. The API has following composable 
 ```js
 // worker.js
 
-// we can use global.config, global.log()
+import server from '#nodes/server.js'
+import app from '#nodes/app.js'
+import endpoint from '#nodes/endpoint.js'
+import src from '#nodes/src.js'
+import runtime from '#nodes/runtime.js'
 
 server(
   app({
@@ -272,7 +311,7 @@ You can also easily read whole body of your request via a function `body()` prov
 
 
 ```js
-import body from './../nodes/body'
+import body from '#nodes/body.js'
 
 const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
@@ -297,8 +336,8 @@ server(
 You can set `maxSize` for request body in `MB`:
 
 ```js
-import body from './../nodes/body'
-import RequestBodySizeExceededMaxSizeError from './../nodes/RequestBodySizeExceededMaxSizeError'
+import body from '#nodes/body.js'
+import RequestBodySizeExceededMaxSizeError from '#nodes/RequestBodySizeExceededMaxSizeError.js'
 
 const api = [
   endpoint('/echo', 'POST', async ({ stream }) => {
@@ -339,7 +378,7 @@ server(
 
 #### Using config
 
-You can access to config (which is also accessible via `global.config`):
+You can access config via the handler context (`config`) or `runtime.config`:
 
 ```js
 const api = [
@@ -396,10 +435,12 @@ Property `allowedOrigins` is the only thing you need to pass to enable CORS for 
 In your endpoint handlers, you also have an access to dependecies (`deps`). You can declare dependencies in `worker.js` and you can mutate them in your endpoints as well.
 
 ```js
+import runtime from '#nodes/runtime.js'
+
 const dbClient = createDBClient({
-  global.config.url,
-  global.config.user,
-  global.config.password
+  url: runtime.config.url,
+  user: runtime.config.user,
+  password: runtime.config.password
 })
 
 const api = [
@@ -597,7 +638,8 @@ It allows to achieve zero downtime to update your codebase (whatever happens in 
 You can also configure restart time between reloading workers:
 
 ```js
-import cluster from './../nodes/cluster'
+import fs from 'fs'
+import cluster from '#nodes/cluster.js'
 
 process.env.ENV = process.env.ENV || 'local'
 
@@ -677,8 +719,8 @@ If you use `output.log` file, you can also see all logs of the application, sinc
 In you `primary.js` and `restart.js`, you can call a function that replaces all your relative urls with CDN urls if it's production:
 
 ```js
-import addCdnToUrls from './../nodes/addCdnToUrls.js'
-import removeCdnFromUrls from './../nodes/removeCdnFromUrls.js'
+import addCdnToUrls from '#nodes/addCdnToUrls.js'
+import removeCdnFromUrls from '#nodes/removeCdnFromUrls.js'
 
 if (process.env.ENV === 'prod') {
   addCdnToUrls('example/static', 'https://cdn.domain.com')
@@ -695,7 +737,7 @@ Async functions `addCdnToUrls` and `removeCdnFromUrls` process all HTML and MD f
 In your `primary.js` and `restart.js`, you can adjust urls with versions `?v=<hash>` in your html/md files. Hash is based on latest modified date of a file that is in the url.
 
 ```js
-import updateCacheVersionsInUrls from './../nodes/updateCacheVersionsInUrls'
+import updateCacheVersionsInUrls from '#nodes/updateCacheVersionsInUrls.js'
 
 updateCacheVersionsInUrls('example/static')
 ```
@@ -768,28 +810,40 @@ This framework is perfect in combination with [ETHML](https://e-html.org). CDN a
 
 [guseyn.com](https://guseyn.com/). Repository: https://github.com/Guseyn/guseyn.com
 
+## JSDoc types (IDE support)
+
+Framework API types live in plain `.js` files as JSDoc `@typedef` blocks — no `.d.ts` files.
+
+| File | Purpose |
+|------|---------|
+| `nodes/types.js` | Core typedefs (`EndpointHandlerContext`, `NodesApp`, `RequestHeaders`, …) |
+| `nodes/runtime.js` | Typed access to process globals: `runtime.config`, `runtime.log` |
+| `nodes/jsconfig.json` | Enables `checkJs` for the `nodes/` folder |
+
+`runtime` is a typed view of `globalThis`. Cluster assigns `runtime.config` at startup; `setupFileLogging()` replaces `runtime.log` (defaults to `console.log`).
+
+Validate types:
+
+```bash
+npm run types:nodes
+```
+
+Requires `typescript` as a dev dependency (included in this repo). Consuming apps can run the same command if they vendor `nodes/` and add a matching script.
+
+Use the same `#nodes/*` [import map](#import-map-nodes) in your app `package.json`. `nodes/jsconfig.json` mirrors it for LSP:
+
+```json
+"paths": { "#nodes/*": ["./*"] }
+```
+
 ## cloc (nodes folder)
 
 ```bash
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-JavaScript                      32            148             51           1477
+JavaScript                      35            148             51           1477
 -------------------------------------------------------------------------------
-SUM:                            32            148             51           1477
+SUM:                            35            148             51           1477
 -------------------------------------------------------------------------------
 ```
-
-## Next Goals
-
-- [ ] Add local admin panel
-  - [ ] Log reader
-  - [ ] Cluster Monitoring
-  - [ ] Rerun button
-  - [ ] Pull button
-- [ ] Add secrets reader from the secret file
-- [ ] Simple Validation For incoming requests
-- [ ] JWT auth out of box
-- [ ] Protected Static files
-- [ ] Introduce Merchant of Record
-- [ ] SQLite out of box with user management

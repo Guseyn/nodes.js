@@ -1,4 +1,4 @@
-name: Release e-ui
+name: Release nodes
 
 on:
   workflow_dispatch:

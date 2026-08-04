@@ -2,8 +2,6 @@
 
 **1.0.38**
 
-[![nodes.js CI](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.ci.yml/badge.svg?branch=main)](https://github.com/Guseyn/nodes.js/actions/workflows/nodes.ci.yml)
-
 NodeJS Procedural Backend Framework with Cluster API based on HTTP/2. Zero dependencies, super simple, you can hack it!
 
 # Table of Contents

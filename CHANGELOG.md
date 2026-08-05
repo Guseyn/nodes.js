@@ -1,4 +1,4 @@
-# Release 1.0.40
+# Release 1.0.41
 
-a07015a update version in package.json to 1.0.40 (guseyn, Wed Aug 5 02:41:00 2026 +0400)
-436fdb7 update docs (guseyn, Wed Aug 5 02:40:43 2026 +0400)
+99a3d6d update version in package.json to 1.0.41 (guseyn, Wed Aug 5 10:33:36 2026 +0400)
+b4d992f add more jsdocs (guseyn, Wed Aug 5 10:33:28 2026 +0400)

@@ -97,7 +97,7 @@ async function adjustPathsInMarkdown(mdContent, cdnBaseUrl) {
  * @param {string} cdnBaseUrl - The base URL of the CDN to prepend to relative paths.
  * @returns {Promise<void>} Resolves when all files are processed.
  */
-async function addCdnToUrsl(dirPath, cdnBaseUrl) {
+async function addCdnToUrls(dirPath, cdnBaseUrl) {
   try {
     // Read all files and directories in the given directory
     const files = await fs.readdir(dirPath, { withFileTypes: true })
@@ -108,7 +108,7 @@ async function addCdnToUrsl(dirPath, cdnBaseUrl) {
 
       if (file.isDirectory()) {
         // Recursively process directories
-        await addCdnToUrsl(fullPath, cdnBaseUrl)
+        await addCdnToUrls(fullPath, cdnBaseUrl)
       } else if (file.isFile()) {
         const extname = path.extname(file.name).toLowerCase()
 
@@ -134,4 +134,4 @@ async function addCdnToUrsl(dirPath, cdnBaseUrl) {
   }
 }
 
-export default addCdnToUrsl
+export default addCdnToUrls

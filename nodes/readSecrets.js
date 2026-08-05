@@ -64,6 +64,11 @@ async function iterateObjectRecursively(obj, callback, path = []) {
   }
 }
 
+/**
+ * @param {any} obj
+ * @param {string | any[]} path
+ * @param {string} newValue
+ */
 function setValueAtPath(obj, path, newValue) {
   let current = obj
 

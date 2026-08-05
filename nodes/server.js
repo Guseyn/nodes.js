@@ -3,7 +3,6 @@ import fs from 'fs'
 import tls from 'tls'
 
 import handleRequests from '#nodes/handleRequests.js'
-import readSecrets from '#nodes/readSecrets.js'
 import { logSymbols } from '#nodes/setupFileLogging.js'
 
 import proxyServer from '#nodes/proxyServer.js'

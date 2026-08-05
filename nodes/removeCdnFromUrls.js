@@ -11,7 +11,7 @@ import path from 'path'
 async function removeCdnUrlsFromHtml(htmlContent, cdnBaseUrl) {
   const tagRegex = /<(a|img|script|link|audio|video|source|e-html|e-svg|e-markdown|e-json|e-json-view|template\s+is="e-json"|template\s+is="e-wrapper")([^>]*)>/g
 
-  return htmlContent.replace(tagRegex, (match, tagName, attributes) => {
+  return htmlContent.replace(tagRegex, (_match, tagName, attributes) => {
     attributes = attributes.replace(/(href|src)="(https?:\/\/[^"]+)"/g, (attrMatch, attribute, fullUrl) => {
       if (fullUrl.startsWith(cdnBaseUrl)) {
         const relativePath = fullUrl.replace(cdnBaseUrl, '')

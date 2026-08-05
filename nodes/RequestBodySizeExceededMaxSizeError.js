@@ -4,6 +4,9 @@
  * @extends Error
  */
 class RequestBodySizeExceededMaxSizeError extends Error {
+  /**
+   * @param {number} maxSize
+   */
   constructor(maxSize) {
     super(`Request body size exceeded max size(${maxSize} mb)`)
     this.name = 'RequestBodySizeExceededMaxSizeError'

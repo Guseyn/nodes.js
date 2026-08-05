@@ -2,7 +2,6 @@ import fs from 'fs/promises'
 import path from 'path'
 import crypto from 'crypto'
 
-import defaultSrcMapper from '#nodes/defaultSrcMapper.js'
 import pathByUrl from '#nodes/pathByUrl.js'
 import { logSymbols } from '#nodes/setupFileLogging.js'
 import runtime from '#nodes/runtime.js'
@@ -53,7 +52,7 @@ async function getFileHash(filePath) {
  * Processes HTML or Markdown files:
  * - Skips code blocks and import maps
  * - Finds URLs in <img>, <script>, <link>, <link rel="preload|prefetch">, etc.
- * - Appends or updates 
+ * - Appends or updates ?v=<hash> based on file content checksum
  * ********************************************************************
  * @param {string} content
  * @param {any} baseFolder
@@ -110,7 +109,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap) 
   // ─────────────────────────────────────────────────────────────
   runtime.log(`${logSymbols.arrow} Step 3: Processing <script type="module"> blocks...`)
   const moduleRegex = /^([ \t]*)<script\s+type=["']module["'](?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gim
-  const importModuleRegex = /import(\s+)['"]([\s\S]*.js\'"]/i
+  const importModuleRegex = /import(\s+)['"]([\s\S]*.js\?v=(\S+))['"]/i
   let moduleMatch
   while ((moduleMatch = moduleRegex.exec(content)) !== null) {
     const outerIndent = moduleMatch[1] || ''
@@ -182,7 +181,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap) 
  */
 function urlWithBustedVersion(url, newVersion) {
   return url.includes('?v=')
-      ? url.replace(/(\&#]*/, `$1${newVersion}`)
+      ? url.replace(/(\?v=)[^&#]*/, `$1${newVersion}`)
       : `${url}${url.includes('?') ? '&' : '?'}v=${newVersion}`
 }
 
@@ -434,7 +433,7 @@ export async function processJSEntryFile(entryPath, baseFolder, srcMapper, impor
  * ********************************************************************
  * maybeVersionUrl()
  * ---------------------------------------------------------------
- * Returns versioned URL with 
+ * Returns versioned URL with ?v=<hash> if applicable.
  * Skips external, dynamic, or invalid URLs.
  * ********************************************************************
  * @param {string} url
@@ -572,7 +571,7 @@ async function buildDependencyTree(filePath, baseFolder, srcMapper, importMap, v
  * 1. Traverse the dependency tree depth-first (post-order).
  * 2. Compute and propagate hashes bottom-up:
  *    - First, compute all child hashes.
- *    - Then, update parent imports to include 
+ *    - Then, update parent imports to include ?v=<hash> for each child.
  *    - Finally, compute and assign parent’s own hash.
  * 3. This guarantees that every file’s hash reflects its
  *    dependencies’ final content and version identifiers.
@@ -622,9 +621,9 @@ async function computeHashesBottomUp(node, visited = new Set()) {
     // ─────────────────────────────────────────────────────────────
     const { spec } = imp
 
-    // If import already has 
+    // If import already has ?v=, replace it; otherwise append
     const newSpec = spec.includes('?v=')
-      ? spec.replace(/(\&#]*/, `$1${child.hash}`)
+      ? spec.replace(/(\?v=)[^&#]*/, `$1${child.hash}`)
       : `${spec}${spec.includes('?') ? '&' : '?'}v=${child.hash}`
 
     // Escape regex special characters in specifier

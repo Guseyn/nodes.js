@@ -109,7 +109,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap) 
   // ─────────────────────────────────────────────────────────────
   runtime.log(`${logSymbols.arrow} Step 3: Processing <script type="module"> blocks...`)
   const moduleRegex = /^([ \t]*)<script\s+type=["']module["'](?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gim
-  const importModuleRegex = /import(\s+)['"]([\s\S]*.js\'"]/i
+  const importModuleRegex = /import\s+['"]([^'"]+\.js)['"]/i
   let moduleMatch
   while ((moduleMatch = moduleRegex.exec(content)) !== null) {
     const outerIndent = moduleMatch[1] || ''
@@ -122,7 +122,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap) 
         if (importMatch === null) {
           continue
         }
-        const importUrl = importMatch[2]
+        const importUrl = importMatch[1]
         const resolved = resolveImport(importUrl, baseFolder, srcMapper, importMap)
         if (!resolved) {
           continue

@@ -235,42 +235,49 @@ export default async function handleRequests(app, stream, headers) {
             }
           }
         } else {
-          const useCache = matchedSrc.useCache || false
-          const lastModified = stats.mtime.toUTCString()
-          if (useCache && headers['if-none-match'] && headers['if-none-match'] === lastModified) {
-            stream.respond({
-              'content-type': 'text/plain',
-              ':status': 304
+          // Check if path is a directory (which cannot be streamed as a file)
+          if (stats.isDirectory()) {
+            await defaultSrcNotAccessibleHandler({
+              stream
             })
-            stream.end()
           } else {
-            const useGzip = matchedSrc.useGzip || false
-            const useCors = matchedSrc.useCors || false
-            const cacheControl = matchedSrc.cacheControl || undefined
-            const allowedOrigins = matchedSrc.allowedOrigins || []
-            const allowedMethods = matchedSrc.allowedMethods || []
-            const allowedHeaders = matchedSrc.allowedHeaders || []
-            const allowedCredentials = matchedSrc.allowedCredentials || false
-            const maxAge = matchedSrc.maxAge || undefined
-            streamFile({
-              file: resolvedFilePath,
-              stream,
-              requestMethod,
-              requestAuthority,
-              requestRange,
-              stats,
-              status: 200,
-              useGzip,
-              useCache,
-              cacheControl,
-              lastModified,
-              useCors,
-              allowedOrigins,
-              allowedMethods,
-              allowedHeaders,
-              allowedCredentials,
-              maxAge
-            })
+            const useCache = matchedSrc.useCache || false
+            const lastModified = stats.mtime.toUTCString()
+            if (useCache && headers['if-none-match'] && headers['if-none-match'] === lastModified) {
+              stream.respond({
+                'content-type': 'text/plain',
+                ':status': 304
+              })
+              stream.end()
+            } else {
+              const useGzip = matchedSrc.useGzip || false
+              const useCors = matchedSrc.useCors || false
+              const cacheControl = matchedSrc.cacheControl || undefined
+              const allowedOrigins = matchedSrc.allowedOrigins || []
+              const allowedMethods = matchedSrc.allowedMethods || []
+              const allowedHeaders = matchedSrc.allowedHeaders || []
+              const allowedCredentials = matchedSrc.allowedCredentials || false
+              const maxAge = matchedSrc.maxAge || undefined
+              streamFile({
+                file: resolvedFilePath,
+                stream,
+                requestMethod,
+                requestAuthority,
+                requestRange,
+                stats,
+                status: 200,
+                useGzip,
+                useCache,
+                cacheControl,
+                lastModified,
+                useCors,
+                allowedOrigins,
+                allowedMethods,
+                allowedHeaders,
+                allowedCredentials,
+                maxAge
+              })
+            }
           }
         }
       })

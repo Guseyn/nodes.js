@@ -102,8 +102,15 @@ export default function streamFile({
       highWaterMark: 1024
     })
   } catch (err) {
-    stream.respond(responseHeaders)
-    stream.end()
+    if (
+      !stream.closed &&
+      !stream.destroyed &&
+      !stream.writableEnded &&
+      !stream.aborted
+    ) {
+      stream.respond({ ':status': 500 })
+      stream.end(`Internal Server Error while creating read stream for file: ${file}`)
+    }
     return
   }
   let outputStream = /** @type {import('node:stream').Readable} */ (readStream)

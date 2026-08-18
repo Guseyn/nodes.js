@@ -1,6 +1,6 @@
 {
   "name": "nodes",
-  "version": "1.0.42",
+  "version": "1.0.43",
   "description": "Procedural Web Framework",
   "type": "module",
   "scripts": {

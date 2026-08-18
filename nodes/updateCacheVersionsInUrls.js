@@ -181,7 +181,7 @@ async function processUrlsInHtmlOrMd(content, baseFolder, srcMapper, importMap) 
  */
 function urlWithBustedVersion(url, newVersion) {
   return url.includes('?v=')
-      ? url.replace(/(\&#]*/, `$1${newVersion}`)
+      ? url.replace(/([\?&]v=)[^&]*/, `$1${newVersion}`)
       : `${url}${url.includes('?') ? '&' : '?'}v=${newVersion}`
 }
 
@@ -621,9 +621,9 @@ async function computeHashesBottomUp(node, visited = new Set()) {
     // ─────────────────────────────────────────────────────────────
     const { spec } = imp
 
-    // If import already has 
+    // If import already has
     const newSpec = spec.includes('?v=')
-      ? spec.replace(/(\&#]*/, `$1${child.hash}`)
+      ? spec.replace(/([\?&]v=)[^&]*/, `$1${child.hash}`)
       : `${spec}${spec.includes('?') ? '&' : '?'}v=${child.hash}`
 
     // Escape regex special characters in specifier
